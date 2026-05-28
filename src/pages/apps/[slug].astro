@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { apps, categories } from '../../data/apps';
+
+export function getStaticPaths() {
+  return apps.map((app) => ({ params: { slug: app.slug }, props: { app } }));
+}
+
+const { app } = Astro.props;
+const cat = categories[app.category];
+const base = import.meta.env.BASE_URL;
+---
+<BaseLayout title={`${app.name} — 165cm の作りもの`} description={app.tagline}>
+  <article class="app-detail">
+    <a class="back" href={base}>← 一覧へ戻る</a>
+
+    <div class="head">
+      <span class="emoji">{app.emoji}</span>
+      <div>
+        <h1>{app.name}</h1>
+        <span class="tag" style="background:#e9d8c1;color:#5a3a1c;">{cat.emoji} {cat.label}</span>
+      </div>
+    </div>
+    <p class="tagline">{app.tagline}</p>
+
+    <section>
+      <h2>💡 こんな時に使えます</h2>
+      <ul>
+        {app.useCases.map((u) => <li>{u}</li>)}
+      </ul>
+    </section>
+
+    <section>
+      <h2>🌱 なぜ作ったか</h2>
+      <p>{app.motivation}</p>
+    </section>
+
+    {app.howTo && (
+      <section>
+        <h2>🚀 使い方</h2>
+        <p>{app.howTo}</p>
+      </section>
+    )}
+
+    <section>
+      <h2>🧰 使っている技術</h2>
+      <div class="tech-row">
+        {app.tech.map((t) => <span class="tech">{t}</span>)}
+      </div>
+    </section>
+
+    <section>
+      <h2>🔗 リンク</h2>
+      <div class="links">
+        {app.links.demo && (
+          <a class="btn primary" href={app.links.demo} target="_blank" rel="noopener">▶ 使ってみる</a>
+        )}
+        <a class="btn" href={app.links.repo} target="_blank" rel="noopener">📦 コードを見る (GitHub)</a>
+        {app.links.blog && (
+          <a class="btn" href={app.links.blog} target="_blank" rel="noopener">📝 関連ブログ</a>
+        )}
+      </div>
+    </section>
+  </article>
+</BaseLayout>

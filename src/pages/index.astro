@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CategorySection from '../components/CategorySection.astro';
+import { apps, appsByCategory, categories } from '../data/apps';
+const cats = Object.keys(categories) as (keyof typeof categories)[];
+const techCount = new Set(apps.flatMap((a) => a.tech)).size;
+const demoCount = apps.filter((a) => a.links.demo).length;
+---
+<BaseLayout title="165cm の作りもの — 趣味で作ったアプリたち">
+  <section class="hero">
+    <div class="emoji">🛠️</div>
+    <h1>日常の「ちょっと困った」を、自分で作って解決しています</h1>
+    <p class="lead">
+      仕事道具、家族向けアプリ、Chrome拡張まで。
+      趣味で作ったアプリをここに並べています。
+    </p>
+  </section>
+
+  <div class="intro-card">
+    <h2>はじめまして、165cm です</h2>
+    <p>身の回りで「これあったら便利だな」と思ったものを、ちょこちょこ自分で作って遊んでいます。</p>
+    <p>誰かの役に立てば嬉しいし、立たなくても作るのが楽しいので続いています。</p>
+    <p class="meta">
+      <a href="https://github.com/165cm" target="_blank" rel="noopener">GitHub →</a>
+    </p>
+  </div>
+
+  {cats.map((cat) => (
+    <CategorySection category={cat} apps={appsByCategory(cat)} />
+  ))}
+
+  <section class="stats">
+    <div class="item">
+      <div class="num">{apps.length}</div>
+      <div class="label">公開アプリ</div>
+    </div>
+    <div class="item">
+      <div class="num">{demoCount}</div>
+      <div class="label">触れるデモ</div>
+    </div>
+    <div class="item">
+      <div class="num">{techCount}</div>
+      <div class="label">使った技術</div>
+    </div>
+  </section>
+</BaseLayout>
