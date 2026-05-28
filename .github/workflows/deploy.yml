@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, claude/epic-mendel-1RT35]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
