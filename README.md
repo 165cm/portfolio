@@ -21,3 +21,10 @@ npm run preview  # 本番ビルドのプレビュー
 
 `main` ブランチに push すると、GitHub Actions が自動的にビルドして Pages に公開します。
 リポジトリ設定の `Pages > Build and deployment > Source` を **GitHub Actions** に設定してください。
+
+## 📘 統一運用マニュアル（全リポ共通）
+
+165cm の他リポジトリでも使う規約（コミット・README・Topics 等）はこのリポジトリで一元管理しています。
+
+- [AGENTS.md](./AGENTS.md) — AI 開発エージェント向けの入り口
+- [docs/standards/](./docs/standards/) — マニュアル本体（ティア、コミット、README、Topics、Pages 運用ほか）

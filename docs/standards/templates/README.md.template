@@ -1,0 +1,33 @@
+# <アプリ名> ![Tier](https://img.shields.io/badge/tier-XXX-COLOR)
+
+> <一行キャッチコピー>
+
+<!-- ![demo](docs/screenshots/demo.gif) -->
+
+## これは何？
+
+<2〜3行で説明>
+
+## こんな時に使えます
+
+- <ユースケース1>
+- <ユースケース2>
+- <ユースケース3>
+
+## 使い方
+
+- 🌐 デモ: https://...
+- <インストール手順 or 起動方法（最短）>
+
+## 技術・開発について
+
+開発者向け情報は [DEVELOPER.md](./DEVELOPER.md) を参照。
+
+## ライセンス
+
+MIT
+
+## 関連リンク
+
+- 🗂 ポートフォリオ: https://165cm.github.io/portfolio/apps/<slug>
+- 📝 ブログ記事: <あれば>
