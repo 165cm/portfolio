@@ -4,6 +4,12 @@
 **運用ルールの本家** です。Claude Code をはじめとする AI 開発エージェントは、
 新規開発・既存リポジトリの改修を問わず、本マニュアルに従って作業してください。
 
+## ⚡ よく使う入口
+
+- 🛠 **他リポへ規約を適用する指示文テンプレ** → [docs/standards/rollout/apply-procedure.md](./docs/standards/rollout/apply-procedure.md)
+- 📋 **各リポの設定値（Tagline/Topics/Website）一覧** → [docs/standards/rollout/repositories.md](./docs/standards/rollout/repositories.md)
+- 📘 **規約本体（目次）** → [docs/standards/README.md](./docs/standards/README.md)
+
 ## 📘 マニュアル本体
 
 すべての規約は [`docs/standards/`](./docs/standards/) に集約しています。

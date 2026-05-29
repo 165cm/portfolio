@@ -3,6 +3,11 @@
 165cm アカウントで管理する **すべてのリポジトリ共通の運用ルール** をここに集約します。
 AI 開発エージェント（Claude Code 等）も、人間の開発者も、迷ったらまずここを見てください。
 
+## ⚡ よく使う入口
+
+- 🛠 **他リポへ規約を適用する指示文テンプレ** → [rollout/apply-procedure.md](./rollout/apply-procedure.md)
+- 📋 **各リポの設定値一覧** → [rollout/repositories.md](./rollout/repositories.md)
+
 ## 目次
 
 | # | ドキュメント | 内容 |

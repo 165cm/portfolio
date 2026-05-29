@@ -28,3 +28,5 @@ npm run preview  # 本番ビルドのプレビュー
 
 - [AGENTS.md](./AGENTS.md) — AI 開発エージェント向けの入り口
 - [docs/standards/](./docs/standards/) — マニュアル本体（ティア、コミット、README、Topics、Pages 運用ほか）
+- 🛠 [docs/standards/rollout/apply-procedure.md](./docs/standards/rollout/apply-procedure.md) — **他リポへ規約を適用する際にコピペする指示文テンプレ**
+- 📋 [docs/standards/rollout/repositories.md](./docs/standards/rollout/repositories.md) — 各リポの設定値一覧
