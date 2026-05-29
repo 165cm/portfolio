@@ -1,30 +1,35 @@
-# 165cm の作りもの (Portfolio)
+# 165cm の作りもの (Portfolio) ![Tier](https://img.shields.io/badge/tier-utility-orange)
 
-趣味で作っているアプリの紹介サイト。GitHub Pages にデプロイされます。
+> 165cmが趣味で作っているアプリを一覧できるポートフォリオサイト
 
-公開URL: https://165cm.github.io/portfolio/
+<!-- docs/screenshots/ にスクリーンショットを追加してください -->
 
-## 開発
+## これは何？
 
-```bash
-npm install
-npm run dev      # ローカルプレビュー (http://localhost:4321/portfolio)
-npm run build    # 本番ビルド
-npm run preview  # 本番ビルドのプレビュー
-```
+Astro 製の静的サイトで、GitHub Pages にデプロイされています。
+日常の「ちょっと困った」を自作で解決してきたアプリを並べた紹介サイトです。
+また、165cm アカウント全リポジトリ共通の統一運用マニュアルの置き場所でもあります。
 
-## アプリ情報の追加・編集
+## こんな時に使えます
 
-`src/data/apps.ts` を編集するだけで、トップページのカードと詳細ページが両方更新されます。
+- 165cm の作品を一覧・詳細で調べたいとき
+- 各アプリのデモや GitHub リポジトリにアクセスしたいとき
+- 新しいアプリをポートフォリオに追加したいとき（`src/data/apps.ts` を編集するだけ）
 
-## デプロイ
+## 使い方
 
-`main` ブランチに push すると、GitHub Actions が自動的にビルドして Pages に公開します。
-リポジトリ設定の `Pages > Build and deployment > Source` を **GitHub Actions** に設定してください。
+- 🌐 サイト: https://165cm.github.io/portfolio/
 
-## 📘 統一運用マニュアル（全リポ共通）
+## 技術・開発について
 
-165cm の他リポジトリでも使う規約（コミット・README・Topics 等）はこのリポジトリで一元管理しています。
+開発者向け情報は [DEVELOPER.md](./DEVELOPER.md) を参照。
 
-- [AGENTS.md](./AGENTS.md) — AI 開発エージェント向けの入り口
-- [docs/standards/](./docs/standards/) — マニュアル本体（ティア、コミット、README、Topics、Pages 運用ほか）
+## ライセンス
+
+MIT
+
+## 関連リンク
+
+- 👤 GitHub: https://github.com/165cm
+- 📘 統一運用マニュアル: [docs/standards/](./docs/standards/)
+- 🤖 AI エージェント向けガイド: [AGENTS.md](./AGENTS.md)
