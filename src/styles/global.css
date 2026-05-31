@@ -139,13 +139,19 @@ a:hover { text-decoration: underline; }
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   text-decoration: none;
   color: inherit;
+  position: relative;
 }
 .card:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 22px rgba(0,0,0,0.08);
   text-decoration: none;
 }
-.card .emoji { font-size: 2rem; }
+.card .card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card .card-head .emoji { font-size: 1.6rem; line-height: 1; }
 .card h3 { margin: 0; font-size: 1.05rem; }
 .card .tagline { color: var(--ink-soft); font-size: 0.92rem; flex-grow: 1; }
 .card .footer-row {
@@ -162,6 +168,23 @@ a:hover { text-decoration: underline; }
   background: var(--accent-soft);
   color: #5a2d1c;
 }
+/* 「公開ページ」「詳しく見る」共通のアクション用ピル */
+.tag--action {
+  background: #e9d8c1;
+  color: #5a3a1c;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.tag--action:hover { background: #dcc7a8; }
+/* 詳細ページへはカード全体をクリック可能にする（stretched link） */
+.detail-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+}
+/* 公開ページリンクは stretched link より上に重ねて個別にクリックできるようにする */
+.demo-link { position: relative; z-index: 1; }
 
 .stats {
   margin: 70px 0 30px;
