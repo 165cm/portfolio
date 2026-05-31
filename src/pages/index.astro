@@ -3,15 +3,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import GroupSection from '../components/GroupSection.astro';
 import { apps, appsByCategory, appsByPlatform, categories, platforms } from '../data/apps';
 import type { App } from '../data/apps';
-import { fetchRepoUpdates } from '../data/repoUpdates';
+import { fetchRepoMeta } from '../data/repoUpdates';
 
 const cats = Object.keys(categories) as (keyof typeof categories)[];
 const plats = Object.keys(platforms) as (keyof typeof platforms)[];
 
-// ビルド時にリポジトリの最終更新日を取得し、それが新しい順に並べる。
-// 取得できなかったアプリは date フィールドにフォールバックする。
-const repoUpdates = await fetchRepoUpdates(apps);
-const lastUpdated = (a: App) => repoUpdates[a.slug] ?? a.date;
+// ビルド時にリポジトリのメタ情報（最終更新日 / About の Website）を取得する。
+const repoMeta = await fetchRepoMeta(apps);
+
+// 「最近の更新順」: リポジトリの pushed_at。取得不可なら date にフォールバック。
+const lastUpdated = (a: App) => repoMeta[a.slug]?.pushedAt ?? a.date;
+// 「公開ページ」: GitHub About の Website。無ければ links.demo にフォールバック。
+const publicUrlOf = (a: App) => repoMeta[a.slug]?.homepage ?? a.links.demo;
+const publicUrls = Object.fromEntries(
+  apps.map((a) => [a.slug, publicUrlOf(a)]).filter(([, url]) => url)
+) as Record<string, string>;
 
 const sortedByDate = [...apps].sort((a, b) => {
   const da = lastUpdated(a);
@@ -22,7 +28,7 @@ const sortedByDate = [...apps].sort((a, b) => {
 const years = [...new Set(sortedByDate.map((a) => lastUpdated(a).slice(0, 4)))];
 
 const techCount = new Set(apps.flatMap((a) => a.tech)).size;
-const demoCount = apps.filter((a) => a.links.demo).length;
+const demoCount = Object.keys(publicUrls).length;
 ---
 <BaseLayout title="165cm の作りもの — 趣味で作ったアプリたち">
   <section class="hero">
@@ -66,6 +72,7 @@ const demoCount = apps.filter((a) => a.links.demo).length;
         label={categories[cat].label}
         description={categories[cat].description}
         apps={appsByCategory(cat)}
+        publicUrls={publicUrls}
       />
     ))}
   </div>
@@ -80,6 +87,7 @@ const demoCount = apps.filter((a) => a.links.demo).length;
           label={platforms[p].label}
           description={platforms[p].description}
           apps={list}
+          publicUrls={publicUrls}
         />
       );
     })}
@@ -92,6 +100,7 @@ const demoCount = apps.filter((a) => a.links.demo).length;
         emoji="🗓️"
         label={`${year}年`}
         apps={sortedByDate.filter((a) => lastUpdated(a).startsWith(year))}
+        publicUrls={publicUrls}
       />
     ))}
   </div>

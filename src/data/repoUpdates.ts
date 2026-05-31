@@ -1,7 +1,8 @@
 import type { App } from './apps';
 
-// slug -> リポジトリ最終更新日（ISO 文字列）
-export type RepoUpdateMap = Record<string, string>;
+// slug -> リポジトリのメタ情報（最終更新日 / About の Website）
+export type RepoMeta = { pushedAt?: string; homepage?: string };
+export type RepoMetaMap = Record<string, RepoMeta>;
 
 // "https://github.com/owner/repo" → "owner/repo"
 function parseRepo(url: string): string | null {
@@ -9,10 +10,12 @@ function parseRepo(url: string): string | null {
   return m ? m[1] : null;
 }
 
-// ビルド時に各リポジトリの pushed_at（最後にコミットが push された日時）を取得する。
+// ビルド時に各リポジトリのメタ情報を取得する。
+// - pushed_at: 最後にコミットが push された日時（「最近の更新順」に使用）
+// - homepage:  GitHub の About > Website（「公開ページ」リンクに使用）
 // GitHub Actions では GITHUB_TOKEN で認証されレート制限を回避できる。
-// 取得できなかったものは結果に含めず、呼び出し側で date フィールドにフォールバックする。
-export async function fetchRepoUpdates(apps: App[]): Promise<RepoUpdateMap> {
+// 取得できなかったものは結果に含めず、呼び出し側でフォールバックする。
+export async function fetchRepoMeta(apps: App[]): Promise<RepoMetaMap> {
   const token = process.env.GITHUB_TOKEN;
   const headers: Record<string, string> = {
     Accept: 'application/vnd.github+json',
@@ -30,15 +33,19 @@ export async function fetchRepoUpdates(apps: App[]): Promise<RepoUpdateMap> {
           signal: AbortSignal.timeout(10000),
         });
         if (!res.ok) return null;
-        const data = (await res.json()) as { pushed_at?: string };
-        return data.pushed_at ? ([app.slug, data.pushed_at] as const) : null;
+        const data = (await res.json()) as { pushed_at?: string; homepage?: string | null };
+        const meta: RepoMeta = {};
+        if (data.pushed_at) meta.pushedAt = data.pushed_at;
+        // homepage は未設定だと "" や null になるため、値があるものだけ採用する
+        if (data.homepage) meta.homepage = data.homepage;
+        return [app.slug, meta] as const;
       } catch {
         return null;
       }
     })
   );
 
-  const map: RepoUpdateMap = {};
+  const map: RepoMetaMap = {};
   for (const e of entries) if (e) map[e[0]] = e[1];
   return map;
 }
