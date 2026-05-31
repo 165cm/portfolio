@@ -1,5 +1,8 @@
 export type Category = 'work' | 'family' | 'money' | 'tool';
 
+// 表示プラットフォーム / 形態（「どんな形で使うものか」での切り口）
+export type Platform = 'webapp' | 'site' | 'extension' | 'tool';
+
 export const categories: Record<Category, { label: string; emoji: string; description: string }> = {
   work: {
     label: '仕事・現場で使うツール',
@@ -23,12 +26,40 @@ export const categories: Record<Category, { label: string; emoji: string; descri
   },
 };
 
+// プラットフォーム別の見出し情報。表示順もこの定義順に従う。
+export const platforms: Record<Platform, { label: string; emoji: string; description: string }> = {
+  webapp: {
+    label: 'Webアプリ・PWA',
+    emoji: '📱',
+    description: 'ブラウザやスマホからすぐ使える、操作できるアプリ',
+  },
+  site: {
+    label: 'Web情報サイト',
+    emoji: '🌐',
+    description: '調べもの・比較に役立つ、読むための情報サイト',
+  },
+  extension: {
+    label: 'Chrome拡張',
+    emoji: '🧩',
+    description: 'ブラウザに機能を足す拡張機能',
+  },
+  tool: {
+    label: 'スクリプト・ツール',
+    emoji: '⚙️',
+    description: 'コマンドや自動化で動く、開発者向けの小さな道具',
+  },
+};
+
 export type App = {
   slug: string;
   name: string;
   emoji: string;
   tagline: string;
   category: Category;
+  platform: Platform;
+  // 公開時期 'YYYY-MM'。新しい順の並び替えに使用。
+  // ※ 現状の値は仮（おおよその推定）です。実際の公開日に置き換えてください。
+  date: string;
   useCases: string[];
   motivation: string;
   howTo?: string;
@@ -40,6 +71,8 @@ export const apps: App[] = [
   // ── 仕事・現場 ───────────────────────────────────────────
   {
     slug: 'aircon-repair',
+    platform: 'site',
+    date: '2024-05',
     name: 'エアコン修理高等学校',
     emoji: '❄️',
     tagline: '症状から自分で原因を切り分けられる、エアコンの困った辞典',
@@ -58,6 +91,8 @@ export const apps: App[] = [
   },
   {
     slug: 'aircon-tool-gear',
+    platform: 'site',
+    date: '2024-07',
     name: 'エアコン工具ギア',
     emoji: '🛠️',
     tagline: 'エアコン修理・取付の工具を、価格だけでなく現場目線で比較',
@@ -76,6 +111,8 @@ export const apps: App[] = [
   },
   {
     slug: 'field-engineer-route-optimizer',
+    platform: 'webapp',
+    date: '2025-02',
     name: 'ルート最適化アプリ',
     emoji: '🗺️',
     tagline: '複数の訪問先を「まわりやすい順」に自動で組み立て',
@@ -93,6 +130,8 @@ export const apps: App[] = [
   },
   {
     slug: 'park-park-lunch',
+    platform: 'webapp',
+    date: '2025-01',
     name: 'パクパクランチ',
     emoji: '🍱',
     tagline: '業務ドライバー向け 昼食候補×停めやすい駐車地点マップ',
@@ -110,6 +149,8 @@ export const apps: App[] = [
   },
   {
     slug: 'parts-location-search',
+    platform: 'webapp',
+    date: '2024-09',
     name: '部品在庫の棚位置検索',
     emoji: '📦',
     tagline: '部品名から、倉庫のどの棚にあるかを即座に検索',
@@ -129,6 +170,8 @@ export const apps: App[] = [
   // ── 家族・育児・学習 ─────────────────────────────────────
   {
     slug: 'family-movie-review',
+    platform: 'site',
+    date: '2024-11',
     name: '家族で観る映画レビュー',
     emoji: '🎬',
     tagline: '「家族で観て大丈夫?」が分かる映画レビューサイト',
@@ -146,6 +189,8 @@ export const apps: App[] = [
   },
   {
     slug: 'Yamtune',
+    platform: 'webapp',
+    date: '2025-03',
     name: 'Yamtune',
     emoji: '🥦',
     tagline: '子どもの好き嫌い克服を、AIレシピで応援',
@@ -163,6 +208,8 @@ export const apps: App[] = [
   },
   {
     slug: 'Talkative-Camera',
+    platform: 'webapp',
+    date: '2025-04',
     name: 'ガチャ電話（Talkative Camera）',
     emoji: '📷',
     tagline: 'カメラで写したモノが、キャラ化して電話してくる',
@@ -181,6 +228,8 @@ export const apps: App[] = [
   },
   {
     slug: 'QuizApp',
+    platform: 'webapp',
+    date: '2024-10',
     name: 'QuizMaster',
     emoji: '🧠',
     tagline: 'AIが教材から自動でクイズを作る、復習特化の学習アプリ',
@@ -199,6 +248,8 @@ export const apps: App[] = [
   },
   {
     slug: 'benkyaku-noto',
+    platform: 'webapp',
+    date: '2025-05',
     name: '弁却ノート',
     emoji: '📓',
     tagline: '参考書をAIで取り込み、効率的に復習管理',
@@ -216,6 +267,8 @@ export const apps: App[] = [
   },
   {
     slug: 'Country-Quiz',
+    platform: 'webapp',
+    date: '2022-04',
     name: 'Country Quiz',
     emoji: '🌏',
     tagline: '国旗や地理を当てる、シンプルなクイズアプリ（初期作品）',
@@ -235,6 +288,8 @@ export const apps: App[] = [
   // ── 投資・お金 ───────────────────────────────────────────
   {
     slug: 'firstrade-calculator-app',
+    platform: 'webapp',
+    date: '2024-03',
     name: 'Firstrade 確定申告支援ツール',
     emoji: '🇺🇸',
     tagline: '米国証券Firstradeの取引データを、日本円で損益計算',
@@ -252,6 +307,8 @@ export const apps: App[] = [
   },
   {
     slug: 'btc-simulator-widget',
+    platform: 'webapp',
+    date: '2023-11',
     name: 'Bitcoin 投資シミュレーター',
     emoji: '₿',
     tagline: '「あの時から積み立てていたら」を可視化するウィジェット',
@@ -271,6 +328,8 @@ export const apps: App[] = [
   // ── ツール / Chrome拡張 ─────────────────────────────────
   {
     slug: 'side-clock',
+    platform: 'extension',
+    date: '2024-08',
     name: 'Side Clock',
     emoji: '🕒',
     tagline: 'フルスクリーン動画にニュース風の時計＆天気をオーバーレイ',
@@ -288,6 +347,8 @@ export const apps: App[] = [
   },
   {
     slug: 'OshiMemoShare',
+    platform: 'extension',
+    date: '2024-12',
     name: 'OshiMemo Share',
     emoji: '📝',
     tagline: 'YouTubeにタイムスタンプ付きメモを残せるChrome拡張',
@@ -305,6 +366,8 @@ export const apps: App[] = [
   },
   {
     slug: 'mp2txt',
+    platform: 'tool',
+    date: '2024-06',
     name: 'mp2txt',
     emoji: '🎙️',
     tagline: 'mp3 / mp4 から文字起こし',
@@ -323,6 +386,8 @@ export const apps: App[] = [
   },
   {
     slug: 'rss-translator',
+    platform: 'tool',
+    date: '2023-09',
     name: 'RSS Translator',
     emoji: '🌐',
     tagline: 'RSSフィードを翻訳して読む',
@@ -340,6 +405,8 @@ export const apps: App[] = [
   },
   {
     slug: 'Infographic-test',
+    platform: 'tool',
+    date: '2025-02',
     name: 'Infographic Test',
     emoji: '📊',
     tagline: 'インフォグラフィック自動生成の実験',
@@ -358,3 +425,9 @@ export const apps: App[] = [
 ];
 
 export const appsByCategory = (cat: Category) => apps.filter((a) => a.category === cat);
+
+export const appsByPlatform = (p: Platform) => apps.filter((a) => a.platform === p);
+
+// 新しい順（date の降順）。date が同じ場合は名前順で安定させる。
+export const appsByDate = () =>
+  [...apps].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.name.localeCompare(b.name)));
