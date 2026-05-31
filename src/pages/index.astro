@@ -1,14 +1,25 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GroupSection from '../components/GroupSection.astro';
-import { apps, appsByCategory, appsByPlatform, appsByDate, categories, platforms } from '../data/apps';
+import { apps, appsByCategory, appsByPlatform, categories, platforms } from '../data/apps';
+import type { App } from '../data/apps';
+import { fetchRepoUpdates } from '../data/repoUpdates';
 
 const cats = Object.keys(categories) as (keyof typeof categories)[];
 const plats = Object.keys(platforms) as (keyof typeof platforms)[];
 
-// 新しい順は年ごとにまとめる（appsByDate は date 降順なので years も新しい順になる）
-const sortedByDate = appsByDate();
-const years = [...new Set(sortedByDate.map((a) => a.date.slice(0, 4)))];
+// ビルド時にリポジトリの最終更新日を取得し、それが新しい順に並べる。
+// 取得できなかったアプリは date フィールドにフォールバックする。
+const repoUpdates = await fetchRepoUpdates(apps);
+const lastUpdated = (a: App) => repoUpdates[a.slug] ?? a.date;
+
+const sortedByDate = [...apps].sort((a, b) => {
+  const da = lastUpdated(a);
+  const db = lastUpdated(b);
+  return da < db ? 1 : da > db ? -1 : a.name.localeCompare(b.name);
+});
+// 年ごとにまとめる（sortedByDate が新しい順なので years も新しい順になる）
+const years = [...new Set(sortedByDate.map((a) => lastUpdated(a).slice(0, 4)))];
 
 const techCount = new Set(apps.flatMap((a) => a.tech)).size;
 const demoCount = apps.filter((a) => a.links.demo).length;
@@ -42,7 +53,7 @@ const demoCount = apps.filter((a) => a.links.demo).length;
       🧱 プラットフォーム
     </button>
     <button class="view-btn" type="button" role="tab" aria-selected="false" data-view="date">
-      🗓️ 新しい順
+      🗓️ 最近の更新順
     </button>
   </div>
 
@@ -80,7 +91,7 @@ const demoCount = apps.filter((a) => a.links.demo).length;
       <GroupSection
         emoji="🗓️"
         label={`${year}年`}
-        apps={sortedByDate.filter((a) => a.date.startsWith(year))}
+        apps={sortedByDate.filter((a) => lastUpdated(a).startsWith(year))}
       />
     ))}
   </div>

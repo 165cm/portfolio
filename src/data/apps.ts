@@ -57,8 +57,9 @@ export type App = {
   tagline: string;
   category: Category;
   platform: Platform;
-  // 公開時期 'YYYY-MM'。新しい順の並び替えに使用。
-  // ※ 現状の値は仮（おおよその推定）です。実際の公開日に置き換えてください。
+  // 「最近の更新順」のフォールバック値 'YYYY-MM'。
+  // 通常はビルド時に取得するリポジトリの最終更新日（pushed_at）で並べ替えるが、
+  // GitHub API が使えない（オフライン / レート制限）場合にこの値が使われる。
   date: string;
   useCases: string[];
   motivation: string;
@@ -427,7 +428,3 @@ export const apps: App[] = [
 export const appsByCategory = (cat: Category) => apps.filter((a) => a.category === cat);
 
 export const appsByPlatform = (p: Platform) => apps.filter((a) => a.platform === p);
-
-// 新しい順（date の降順）。date が同じ場合は名前順で安定させる。
-export const appsByDate = () =>
-  [...apps].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.name.localeCompare(b.name)));
