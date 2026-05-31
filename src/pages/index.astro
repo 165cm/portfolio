@@ -1,8 +1,26 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import CategorySection from '../components/CategorySection.astro';
-import { apps, appsByCategory, categories } from '../data/apps';
+import GroupSection from '../components/GroupSection.astro';
+import { apps, appsByCategory, appsByPlatform, categories, platforms } from '../data/apps';
+import type { App } from '../data/apps';
+import { fetchRepoUpdates } from '../data/repoUpdates';
+
 const cats = Object.keys(categories) as (keyof typeof categories)[];
+const plats = Object.keys(platforms) as (keyof typeof platforms)[];
+
+// ビルド時にリポジトリの最終更新日を取得し、それが新しい順に並べる。
+// 取得できなかったアプリは date フィールドにフォールバックする。
+const repoUpdates = await fetchRepoUpdates(apps);
+const lastUpdated = (a: App) => repoUpdates[a.slug] ?? a.date;
+
+const sortedByDate = [...apps].sort((a, b) => {
+  const da = lastUpdated(a);
+  const db = lastUpdated(b);
+  return da < db ? 1 : da > db ? -1 : a.name.localeCompare(b.name);
+});
+// 年ごとにまとめる（sortedByDate が新しい順なので years も新しい順になる）
+const years = [...new Set(sortedByDate.map((a) => lastUpdated(a).slice(0, 4)))];
+
 const techCount = new Set(apps.flatMap((a) => a.tech)).size;
 const demoCount = apps.filter((a) => a.links.demo).length;
 ---
@@ -25,9 +43,58 @@ const demoCount = apps.filter((a) => a.links.demo).length;
     </p>
   </div>
 
-  {cats.map((cat) => (
-    <CategorySection category={cat} apps={appsByCategory(cat)} />
-  ))}
+  <!-- 一覧の並べ方を切り替えるトグル -->
+  <div class="view-switcher" role="tablist" aria-label="一覧の並べ方">
+    <span class="view-switcher-label">並べ方：</span>
+    <button class="view-btn is-active" type="button" role="tab" aria-selected="true" data-view="category">
+      🗂️ 用途
+    </button>
+    <button class="view-btn" type="button" role="tab" aria-selected="false" data-view="platform">
+      🧱 プラットフォーム
+    </button>
+    <button class="view-btn" type="button" role="tab" aria-selected="false" data-view="date">
+      🗓️ 最近の更新順
+    </button>
+  </div>
+
+  <!-- 用途別（既存の並べ方） -->
+  <div class="view" data-view="category">
+    {cats.map((cat) => (
+      <GroupSection
+        id={cat}
+        emoji={categories[cat].emoji}
+        label={categories[cat].label}
+        description={categories[cat].description}
+        apps={appsByCategory(cat)}
+      />
+    ))}
+  </div>
+
+  <!-- プラットフォーム別 -->
+  <div class="view" data-view="platform" hidden>
+    {plats.map((p) => {
+      const list = appsByPlatform(p);
+      return list.length > 0 && (
+        <GroupSection
+          emoji={platforms[p].emoji}
+          label={platforms[p].label}
+          description={platforms[p].description}
+          apps={list}
+        />
+      );
+    })}
+  </div>
+
+  <!-- 新しい順（年ごと） -->
+  <div class="view" data-view="date" hidden>
+    {years.map((year) => (
+      <GroupSection
+        emoji="🗓️"
+        label={`${year}年`}
+        apps={sortedByDate.filter((a) => lastUpdated(a).startsWith(year))}
+      />
+    ))}
+  </div>
 
   <section class="stats">
     <div class="item">
@@ -44,3 +111,58 @@ const demoCount = apps.filter((a) => a.links.demo).length;
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .view-switcher {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 2rem 0 1.5rem;
+  }
+  .view-switcher-label {
+    font-size: 0.9rem;
+    color: #7a6a55;
+    margin-right: 0.25rem;
+  }
+  .view-btn {
+    font: inherit;
+    font-size: 0.95rem;
+    padding: 0.45rem 0.95rem;
+    border: 1px solid #e0d4c0;
+    border-radius: 999px;
+    background: #fff;
+    color: #5a4a35;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .view-btn:hover {
+    border-color: #c9b48f;
+  }
+  .view-btn.is-active {
+    background: #5a3a1c;
+    border-color: #5a3a1c;
+    color: #fff;
+  }
+  .view[hidden] {
+    display: none;
+  }
+</style>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.view-btn');
+  const views = document.querySelectorAll<HTMLElement>('.view');
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.view;
+      buttons.forEach((b) => {
+        const active = b === btn;
+        b.classList.toggle('is-active', active);
+        b.setAttribute('aria-selected', String(active));
+      });
+      views.forEach((v) => {
+        v.hidden = v.dataset.view !== target;
+      });
+    });
+  });
+</script>

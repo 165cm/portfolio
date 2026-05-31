@@ -1,0 +1,16 @@
+---
+import AppCard from './AppCard.astro';
+import type { App } from '../data/apps';
+interface Props { emoji: string; label: string; description?: string; apps: App[]; id?: string }
+const { emoji, label, description, apps, id } = Astro.props;
+---
+<section class="category-section" id={id}>
+  <div class="head">
+    <span class="emoji">{emoji}</span>
+    <h2>{label}</h2>
+  </div>
+  {description && <p class="desc">{description}</p>}
+  <div class="cards">
+    {apps.map((app) => <AppCard app={app} />)}
+  </div>
+</section>
