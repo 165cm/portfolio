@@ -170,6 +170,26 @@ export const apps: App[] = [
 
   // ── 家族・育児・学習 ─────────────────────────────────────
   {
+    slug: 'matagochi',
+    platform: 'webapp',
+    date: '2026-06',
+    name: 'またごち',
+    emoji: '🍚',
+    tagline: '家族の「また食べたい」を残す、ごはんメモ',
+    category: 'family',
+    useCases: [
+      'SNSで見つけたレシピ動画をあとから探し直したいとき',
+      '家族ごとの「また食べたい」度を残したいとき',
+      'レシピアプリほど重くない、家庭用のごはんメモを試したいとき',
+    ],
+    motivation: 'SNSで見つけたレシピ動画は、後から探すのが意外と大変。家族の反応まで一緒に残せれば、次に作る判断が楽になると思って作りました。',
+    tech: ['HTML/JavaScript', 'GitHub Pages', 'localStorage'],
+    links: {
+      demo: 'https://165cm.github.io/matagochi/',
+      repo: 'https://github.com/165cm/matagochi',
+    },
+  },
+  {
     slug: 'family-movie-review',
     platform: 'site',
     date: '2024-11',
