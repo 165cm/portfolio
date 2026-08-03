@@ -1,7 +1,7 @@
 export type Category = 'work' | 'family' | 'money' | 'tool';
 
 // 表示プラットフォーム / 形態（「どんな形で使うものか」での切り口）
-export type Platform = 'webapp' | 'site' | 'extension' | 'tool';
+export type Platform = 'webapp' | 'site' | 'extension' | 'watchapp' | 'tool';
 
 export const categories: Record<Category, { label: string; emoji: string; description: string }> = {
   work: {
@@ -43,6 +43,11 @@ export const platforms: Record<Platform, { label: string; emoji: string; descrip
     emoji: '🧩',
     description: 'ブラウザに機能を足す拡張機能',
   },
+  watchapp: {
+    label: 'スマートウォッチアプリ',
+    emoji: '⌚',
+    description: '腕元で素早く操作し、作業や生活を支えるアプリ',
+  },
   tool: {
     label: 'スクリプト・ツール',
     emoji: '⚙️',
@@ -70,6 +75,25 @@ export type App = {
 
 export const apps: App[] = [
   // ── 仕事・現場 ───────────────────────────────────────────
+  {
+    slug: 'pace-pilot',
+    platform: 'watchapp',
+    date: '2026-08',
+    name: 'PacePilot',
+    emoji: '⏱️',
+    tagline: '作業を予定時間内に終えるためのZepp OS向けインターバルタイマー',
+    category: 'work',
+    useCases: [
+      '修理や点検を決めた時間内で終えたいとき',
+      '15分＋5分などの作業ペースを繰り返したいとき',
+      '作業ごとの予定と実績を腕時計で記録したいとき',
+    ],
+    motivation: '現場作業の見積もり時間と実績のずれを減らすため、現在時刻・終了予定・単位ごとの残り時間を腕元で同時に確認できるタイマーを作りました。',
+    tech: ['Zepp OS', 'JavaScript', 'Amazfit Bip 6'],
+    links: {
+      repo: 'https://github.com/165cm/pace-pilot',
+    },
+  },
   {
     slug: 'aircon-repair',
     platform: 'site',
