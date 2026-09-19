@@ -195,7 +195,7 @@ export const apps: App[] = [
     howTo: '「10/5」「15/5」「20/10」の3プリセットから選んでStartするだけ。作業と休憩が3ラウンド自動で切り替わり、終わると振動で知らせます。',
     tech: ['Zepp OS Mini Program', 'JavaScript', 'Amazfit Bip 6'],
     links: {
-      repo: 'https://github.com/165cm/PacePilot',
+      repo: 'https://github.com/165cm/pace-pilot',
     },
   },
   {
