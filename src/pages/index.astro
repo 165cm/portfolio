@@ -13,8 +13,15 @@ const repoMeta = await fetchRepoMeta(apps);
 
 // 「最近の更新順」: リポジトリの pushed_at。取得不可なら date にフォールバック。
 const lastUpdated = (a: App) => repoMeta[a.slug]?.pushedAt ?? a.date;
-// 「公開ページ」: GitHub About の Website。無ければ links.demo にフォールバック。
-const publicUrlOf = (a: App) => repoMeta[a.slug]?.homepage ?? a.links.demo;
+// 公開中のものへのリンク: GitHub About の Website。無ければ links.demo にフォールバック。
+// ただし Website がこのポートフォリオ自身を指している場合（外部に公開ページを
+// 持たない作品で、About にポートフォリオの詳細ページを入れている場合）は、
+// 「詳しく見る」と同じ行き先になってしまうため採用しない。
+const isSelfUrl = (url: string) => url.includes('165cm.github.io/portfolio');
+const publicUrlOf = (a: App) => {
+  const homepage = repoMeta[a.slug]?.homepage;
+  return homepage && !isSelfUrl(homepage) ? homepage : a.links.demo;
+};
 const publicUrls = Object.fromEntries(
   apps.map((a) => [a.slug, publicUrlOf(a)]).filter(([, url]) => url)
 ) as Record<string, string>;

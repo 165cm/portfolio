@@ -1,7 +1,7 @@
-export type Category = 'work' | 'family' | 'money' | 'tool';
+export type Category = 'work' | 'family' | 'money' | 'tool' | 'experiment';
 
 // 表示プラットフォーム / 形態（「どんな形で使うものか」での切り口）
-export type Platform = 'webapp' | 'site' | 'extension' | 'tool';
+export type Platform = 'webapp' | 'site' | 'extension' | 'watch' | 'tool';
 
 export const categories: Record<Category, { label: string; emoji: string; description: string }> = {
   work: {
@@ -24,29 +24,49 @@ export const categories: Record<Category, { label: string; emoji: string; descri
     emoji: '🧩',
     description: '日常の小さな不便を、Chrome拡張や小さなアプリで解決',
   },
+  experiment: {
+    label: '実験',
+    emoji: '🧪',
+    description: '実用性より「やってみたかった」が先に立った、試作・遊びの作品',
+  },
 };
 
 // プラットフォーム別の見出し情報。表示順もこの定義順に従う。
-export const platforms: Record<Platform, { label: string; emoji: string; description: string }> = {
+// linkLabel: 公開中のものへ飛ぶリンクの文言。形態によって「開いて使う」のか
+// 「読む」のかが違うため、プラットフォームごとに言い換える。
+export const platforms: Record<
+  Platform,
+  { label: string; emoji: string; description: string; linkLabel: string }
+> = {
   webapp: {
     label: 'Webアプリ・PWA',
     emoji: '📱',
     description: 'ブラウザやスマホからすぐ使える、操作できるアプリ',
+    linkLabel: '使ってみる',
   },
   site: {
     label: 'Web情報サイト',
     emoji: '🌐',
     description: '調べもの・比較に役立つ、読むための情報サイト',
+    linkLabel: 'サイトを見る',
   },
   extension: {
     label: 'Chrome拡張',
     emoji: '🧩',
     description: 'ブラウザに機能を足す拡張機能',
+    linkLabel: '紹介ページを見る',
+  },
+  watch: {
+    label: 'スマートウォッチ',
+    emoji: '⌚',
+    description: 'Amazfit / Zepp OS の腕元で動くアプリ・文字盤',
+    linkLabel: '紹介ページを見る',
   },
   tool: {
     label: 'スクリプト・ツール',
     emoji: '⚙️',
     description: 'コマンドや自動化で動く、開発者向けの小さな道具',
+    linkLabel: 'デモを見る',
   },
 };
 
@@ -165,6 +185,47 @@ export const apps: App[] = [
     tech: ['HTML/JavaScript', 'Google Apps Script', 'GitHub Pages'],
     links: {
       repo: 'https://github.com/165cm/parts-location-search',
+    },
+  },
+
+  {
+    slug: 'pace-pilot',
+    platform: 'watch',
+    date: '2026-08',
+    name: 'PacePilot',
+    emoji: '⏱️',
+    tagline: '腕元だけで集中と休憩を切り替えるZepp OSポモドーロタイマー',
+    category: 'work',
+    useCases: [
+      '勉強や仕事で、集中と休憩を決まったリズムで繰り返したいとき',
+      '「15分＋5分」などの作業ペースを腕時計だけで管理したいとき',
+      'スマホを見ずに残り時間と終了予定を確認したいとき',
+    ],
+    motivation: 'ポモドーロを続けたいのに、毎回スマホを触ると結局そこで集中が切れる。腕時計だけで完結すればいいと思って、Amazfit向けに作りました。',
+    howTo: '「10/5」「15/5」「20/10」の3プリセットから選んでStartするだけ。作業と休憩が3ラウンド自動で切り替わり、終わると振動で知らせます。',
+    tech: ['Zepp OS Mini Program', 'JavaScript', 'Amazfit Bip 6'],
+    links: {
+      repo: 'https://github.com/165cm/pace-pilot',
+    },
+  },
+  {
+    slug: 'Jobscope',
+    platform: 'extension',
+    date: '2025-12',
+    name: 'Jobscope',
+    emoji: '🔍',
+    tagline: '求人ページをAIで解析して、Notionにそのまま保存',
+    category: 'work',
+    useCases: [
+      '転職活動で、見つけた求人を一覧で管理したいとき',
+      '求人票の条件を毎回コピペするのが面倒なとき',
+      '応募前に企業の口コミ・SNSをまとめて調べたいとき',
+    ],
+    motivation: '求人を見るたびにNotionへ手で転記していたのが限界だったので、ページを開いてボタン一発で解析・保存できるようにしました。登録済みURLの重複チェックや企業リサーチリンクの自動生成も入れています。',
+    tech: ['Chrome Extension', 'React 19', 'TypeScript', 'Vite', 'Notion API', 'OpenAI API'],
+    links: {
+      demo: 'https://165cm.github.io/Jobscope/lp/',
+      repo: 'https://github.com/165cm/Jobscope',
     },
   },
 
@@ -306,6 +367,26 @@ export const apps: App[] = [
     },
   },
 
+  {
+    slug: 'typing-game',
+    platform: 'webapp',
+    date: '2025-10',
+    name: 'タイピングゲーム',
+    emoji: '⌨️',
+    tagline: '単語リストで遊ぶ、シンプルなタイピング練習（習作）',
+    category: 'family',
+    useCases: [
+      '子どもとキーボード入力に慣れたいとき',
+      'スキマ時間にタイピングを練習したいとき',
+      'サーバ＋DBを繋いだ小さな習作を覗いてみたいとき',
+    ],
+    motivation: 'タイピング練習を自作してみたかった習作。単語リストをDBに持たせて、Expressから配る構成の練習も兼ねています。',
+    tech: ['JavaScript', 'Express', 'MySQL'],
+    links: {
+      repo: 'https://github.com/165cm/typing-game',
+    },
+  },
+
   // ── 投資・お金 ───────────────────────────────────────────
   {
     slug: 'firstrade-calculator-app',
@@ -346,7 +427,88 @@ export const apps: App[] = [
     },
   },
 
+  {
+    slug: 'receino',
+    platform: 'webapp',
+    date: '2026-06',
+    name: 'Receino（レシーノ）',
+    emoji: '🧾',
+    tagline: 'レシートを撮るだけで、AIが食費を自動で仕分け',
+    category: 'money',
+    useCases: [
+      '食費がいくらかかっているかを、ざっくりでも把握したいとき',
+      'レシートの手入力が面倒で家計簿が続かないとき',
+      '家族の食費を共有して、無駄を見直したいとき',
+    ],
+    motivation: '家計簿が続かない理由はほぼ「入力が面倒」。撮るだけで品目・カテゴリ・金額まで読み取ってくれれば続くはずだと思って作りました。',
+    howTo: 'レシートを撮影するとAIが自動で分類し、月の食費・カテゴリ別の内訳・年間の見込みが見えます。初回は5枚まで無料。',
+    tech: ['TypeScript', 'Expo (React Native)', 'Fastify', 'Google Gemini'],
+    links: {
+      demo: 'https://receino.com',
+      repo: 'https://github.com/165cm/receino',
+    },
+  },
+
   // ── ツール / Chrome拡張 ─────────────────────────────────
+  {
+    slug: 'retro-quest-watchface',
+    platform: 'watch',
+    date: '2026-09',
+    name: 'Pixel Wayfarer Face',
+    emoji: '🕹️',
+    tagline: '8-bit RPG風のAmazfit Bip 6用ウォッチフェイス',
+    category: 'tool',
+    useCases: [
+      '腕時計の文字盤をレトロゲーム風にしたいとき',
+      '時刻に加えて天気・気温・バッテリーを一目で見たいとき',
+      'Zepp OSの文字盤を自作してみたいとき',
+    ],
+    motivation: '既製の文字盤にしっくりくるものがなかったので、視認性を最優先しつつ8-bit RPGらしさを出した文字盤を自作しました。バッテリーは10分割のHPゲージで表現しています。',
+    tech: ['Zepp OS 5.0', 'JavaScript', 'Zeus CLI', 'Amazfit Bip 6'],
+    links: {
+      repo: 'https://github.com/165cm/retro-quest-watchface',
+    },
+  },
+  {
+    slug: 'DistroLyrics',
+    platform: 'webapp',
+    date: '2026-01',
+    name: 'DistroLyrics',
+    emoji: '🎵',
+    tagline: 'DistroKidで弾かれる日本語歌詞を、通る形に自動整形',
+    category: 'tool',
+    useCases: [
+      'DistroKidに日本語の歌詞を登録したいとき',
+      '行末の句読点やセクション名でリジェクトされたとき',
+      '「×2」などの繰り返し記号を書き出すのが面倒なとき',
+    ],
+    motivation: 'DistroKidは日本語歌詞のルールが独特で、何度もリジェクトされました。ルールを知っていれば機械的に直せる内容なので、貼るだけで整形できるツールにしました。',
+    howTo: '歌詞を貼り付けると自動で変換され、変更箇所がハイライトされます。日本語・英語対応。',
+    tech: ['HTML/CSS', 'Vanilla JavaScript', 'GitHub Pages'],
+    links: {
+      demo: 'https://165cm.github.io/DistroLyrics/',
+      repo: 'https://github.com/165cm/DistroLyrics',
+    },
+  },
+  {
+    slug: 'NotionNotice',
+    platform: 'tool',
+    date: '2025-12',
+    name: 'NotionNotice',
+    emoji: '🔔',
+    tagline: 'Notionに追加があったらGmailに通知する、コピペで作れる仕組み',
+    category: 'tool',
+    useCases: [
+      'Notionの問い合わせフォームへの書き込みを見逃したくないとき',
+      '有料の自動化サービスを使わずに通知を飛ばしたいとき',
+      'プログラミング未経験でも設定できる手順が欲しいとき',
+    ],
+    motivation: 'Notionは通知が弱く、問い合わせに気付かないことがありました。Google Apps Scriptだけで無料で解決できるので、初心者でもコピペで設定できる手順付きで公開しています。',
+    tech: ['Google Apps Script', 'Notion API', 'Gmail'],
+    links: {
+      repo: 'https://github.com/165cm/NotionNotice',
+    },
+  },
   {
     slug: 'side-clock',
     platform: 'extension',
@@ -441,6 +603,28 @@ export const apps: App[] = [
     tech: ['Python'],
     links: {
       repo: 'https://github.com/165cm/Infographic-test',
+    },
+  },
+
+  // ── 実験 ─────────────────────────────────────────────────
+  {
+    slug: 'dorokawa-kengaku',
+    platform: 'site',
+    date: '2026-02',
+    name: '泥川見学',
+    emoji: '🎸',
+    tagline: '45歳おっさんの日常を楽曲にした、AI音楽プロジェクトのサイト',
+    category: 'experiment',
+    useCases: [
+      '「半径5メートルの冒険」を歌にした楽曲を聴きたいとき',
+      '台湾珍道中の日記music（全15曲）をまとめて眺めたいとき',
+      'AIで作った楽曲を、LPとしてどう見せるか参考にしたいとき',
+    ],
+    motivation: 'クアラルンプール在住45歳の「トホホな日常」を、そのまま曲にしたら面白いのではと思って始めた実験。楽曲・歌詞・背景エピソードを1枚のページにまとめ、Spotify / YouTube への導線も置いています。',
+    tech: ['静的HTML/CSS', 'JavaScript', 'GitHub Pages', 'AI楽曲生成'],
+    links: {
+      demo: 'https://165cm.github.io/dorokawa-kengaku/',
+      repo: 'https://github.com/165cm/dorokawa-kengaku',
     },
   },
 ];

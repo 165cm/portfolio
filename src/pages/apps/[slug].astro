@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { apps, categories } from '../../data/apps';
+import { apps, categories, platforms } from '../../data/apps';
 
 export function getStaticPaths() {
   return apps.map((app) => ({ params: { slug: app.slug }, props: { app } }));
@@ -8,6 +8,7 @@ export function getStaticPaths() {
 
 const { app } = Astro.props;
 const cat = categories[app.category];
+const plat = platforms[app.platform];
 const base = import.meta.env.BASE_URL;
 ---
 <BaseLayout title={`${app.name} — 165cm の作りもの`} description={app.tagline}>
@@ -53,7 +54,7 @@ const base = import.meta.env.BASE_URL;
       <h2>🔗 リンク</h2>
       <div class="links">
         {app.links.demo && (
-          <a class="btn primary" href={app.links.demo} target="_blank" rel="noopener">▶ 使ってみる</a>
+          <a class="btn primary" href={app.links.demo} target="_blank" rel="noopener">{plat.emoji} {plat.linkLabel}</a>
         )}
         <a class="btn" href={app.links.repo} target="_blank" rel="noopener">📦 コードを見る (GitHub)</a>
         {app.links.blog && (
