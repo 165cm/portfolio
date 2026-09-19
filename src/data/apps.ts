@@ -32,31 +32,41 @@ export const categories: Record<Category, { label: string; emoji: string; descri
 };
 
 // プラットフォーム別の見出し情報。表示順もこの定義順に従う。
-export const platforms: Record<Platform, { label: string; emoji: string; description: string }> = {
+// linkLabel: 公開中のものへ飛ぶリンクの文言。形態によって「開いて使う」のか
+// 「読む」のかが違うため、プラットフォームごとに言い換える。
+export const platforms: Record<
+  Platform,
+  { label: string; emoji: string; description: string; linkLabel: string }
+> = {
   webapp: {
     label: 'Webアプリ・PWA',
     emoji: '📱',
     description: 'ブラウザやスマホからすぐ使える、操作できるアプリ',
+    linkLabel: '使ってみる',
   },
   site: {
     label: 'Web情報サイト',
     emoji: '🌐',
     description: '調べもの・比較に役立つ、読むための情報サイト',
+    linkLabel: 'サイトを見る',
   },
   extension: {
     label: 'Chrome拡張',
     emoji: '🧩',
     description: 'ブラウザに機能を足す拡張機能',
+    linkLabel: '紹介ページを見る',
   },
   watch: {
     label: 'スマートウォッチ',
     emoji: '⌚',
     description: 'Amazfit / Zepp OS の腕元で動くアプリ・文字盤',
+    linkLabel: '紹介ページを見る',
   },
   tool: {
     label: 'スクリプト・ツール',
     emoji: '⚙️',
     description: 'コマンドや自動化で動く、開発者向けの小さな道具',
+    linkLabel: 'デモを見る',
   },
 };
 
