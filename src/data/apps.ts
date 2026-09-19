@@ -1,4 +1,4 @@
-export type Category = 'work' | 'family' | 'money' | 'tool';
+export type Category = 'work' | 'family' | 'money' | 'tool' | 'experiment';
 
 // 表示プラットフォーム / 形態（「どんな形で使うものか」での切り口）
 export type Platform = 'webapp' | 'site' | 'extension' | 'watch' | 'tool';
@@ -23,6 +23,11 @@ export const categories: Record<Category, { label: string; emoji: string; descri
     label: 'ちょっと便利なツール / 拡張',
     emoji: '🧩',
     description: '日常の小さな不便を、Chrome拡張や小さなアプリで解決',
+  },
+  experiment: {
+    label: '実験',
+    emoji: '🧪',
+    description: '実用性より「やってみたかった」が先に立った、試作・遊びの作品',
   },
 };
 
@@ -588,6 +593,28 @@ export const apps: App[] = [
     tech: ['Python'],
     links: {
       repo: 'https://github.com/165cm/Infographic-test',
+    },
+  },
+
+  // ── 実験 ─────────────────────────────────────────────────
+  {
+    slug: 'dorokawa-kengaku',
+    platform: 'site',
+    date: '2026-02',
+    name: '泥川見学',
+    emoji: '🎸',
+    tagline: '45歳おっさんの日常を楽曲にした、AI音楽プロジェクトのサイト',
+    category: 'experiment',
+    useCases: [
+      '「半径5メートルの冒険」を歌にした楽曲を聴きたいとき',
+      '台湾珍道中の日記music（全15曲）をまとめて眺めたいとき',
+      'AIで作った楽曲を、LPとしてどう見せるか参考にしたいとき',
+    ],
+    motivation: 'クアラルンプール在住45歳の「トホホな日常」を、そのまま曲にしたら面白いのではと思って始めた実験。楽曲・歌詞・背景エピソードを1枚のページにまとめ、Spotify / YouTube への導線も置いています。',
+    tech: ['静的HTML/CSS', 'JavaScript', 'GitHub Pages', 'AI楽曲生成'],
+    links: {
+      demo: 'https://165cm.github.io/dorokawa-kengaku/',
+      repo: 'https://github.com/165cm/dorokawa-kengaku',
     },
   },
 ];
