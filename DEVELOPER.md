@@ -32,10 +32,10 @@ npm run dev      # 開発サーバ (http://localhost:4321/portfolio)
 
 ```
 src/
-  ├ pages/        ルーティング（index.astro / about.astro / apps/[slug].astro）
+  ├ pages/        ルーティング（index.astro / about.astro / apps/[slug].astro / business/）
   ├ components/   UIコンポーネント（AppCard / CategorySection）
-  ├ layouts/      共通レイアウト（BaseLayout）
-  ├ data/         apps.ts — 全アプリ情報の単一ソース
+  ├ layouts/      共通レイアウト（BaseLayout / BusinessLayout）
+  ├ data/         apps.ts — 全アプリ情報の単一ソース / business.ts — 事業者・有料サービス・価格
   └ styles/       global.css
 docs/
   └ standards/    全リポ共通の統一運用マニュアル
@@ -47,6 +47,14 @@ docs/
 
 `src/data/apps.ts` を編集するだけで、トップページのカードと詳細ページが両方更新されます。
 新規アプリ追加時は `App` 型に従ってオブジェクトを追加してください。
+
+## 事業者ページ（ぱぱぞんアプリ）
+
+`/business/` 以下は有料サービスの販売者ページ（Stripe の事業者サイト審査用・購入者向け）。
+トップ・特定商取引法に基づく表記・返金・キャンセルポリシー・利用規約・プライバシーポリシーの5ページ。
+屋号・連絡先・サービス・価格は `src/data/business.ts` が正本で、Stripe に登録した内容と一致させること。
+価格や規約を変えたら `business.updated`（最終更新日）も更新する。
+注意：Astro の `<table>` の中に `{式}` を書くと HTML が崩れるため、表は `<dl class="info-list">` で作る。
 
 ## デプロイ手順
 

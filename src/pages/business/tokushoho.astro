@@ -1,0 +1,60 @@
+---
+import BusinessLayout from '../../layouts/BusinessLayout.astro';
+import { business, services, yen } from '../../data/business';
+const b = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/business`;
+const onRequest = '請求があった場合には遅滞なく開示いたします（下記メールアドレスまでご請求ください）';
+---
+<BusinessLayout title={`特定商取引法に基づく表記 — ${business.name}`}>
+  <article class="biz-page">
+    <h1>特定商取引法に基づく表記</h1>
+    <section>
+      <dl class="info-list">
+          <div><dt>販売業者</dt><dd>{business.name}（{business.nameEn}）</dd></div>
+          <div><dt>運営責任者</dt><dd>{onRequest}</dd></div>
+          <div><dt>所在地</dt><dd>{onRequest}</dd></div>
+          <div><dt>電話番号</dt><dd>{onRequest}</dd></div>
+          <div><dt>メールアドレス</dt><dd><a href={`mailto:${business.email}`}>{business.email}</a><br /><span class="note">お問い合わせはメールにて承ります。</span></dd></div>
+          <div>
+            <dt>販売価格</dt>
+            <dd>
+              {services.map((s) => (
+                <div>
+                  {s.name}
+                  <ul>
+                    {s.plans.map((p) => <li>{p.name}：{yen(p.price)}（税込）／{p.unit}</li>)}
+                  </ul>
+                </div>
+              ))}
+            </dd>
+          </div>
+          <div><dt>商品代金以外の必要料金</dt><dd>インターネット接続料金・通信料金はお客様のご負担となります。</dd></div>
+          <div><dt>お支払い方法</dt><dd>クレジットカード決済（決済代行：Stripe）</dd></div>
+          <div>
+            <dt>お支払い時期</dt>
+            <dd>
+              月額プラン：お申し込み時に初回分を決済し、以後1ヶ月ごとの更新日に自動で決済されます。<br />
+              3ヶ月プラン（買い切り）：ご購入時に1回のみ決済されます（自動更新はありません）。
+            </dd>
+          </div>
+          <div><dt>サービスの提供時期</dt><dd>決済完了後、すぐにご利用いただけます。</dd></div>
+          <div>
+            <dt>契約期間・解約</dt>
+            <dd>
+              月額プラン：1ヶ月ごとの自動更新です。次回更新日の前日までに解約手続きをすると、次回以降の請求は発生しません。解約後も、お支払い済みの期間の終了まではご利用いただけます。<br />
+              3ヶ月プラン：購入日から3ヶ月間ご利用いただけます。自動更新はなく、解約手続きは不要です。
+            </dd>
+          </div>
+          <div>
+            <dt>返品・キャンセル（返金）</dt>
+            <dd>
+              デジタルコンテンツの性質上、ご購入後のお客様都合による返金はお受けしておりません。
+              当方の不具合によりサービスをご利用いただけない場合は、返金を含めて個別に対応いたします。
+              詳しくは<a href={`${b}/refund/`}>返金・キャンセルポリシー</a>をご覧ください。
+            </dd>
+          </div>
+          <div><dt>動作環境</dt><dd>スマートフォン・パソコンの最新版のブラウザ（Safari・Google Chrome など）</dd></div>
+      </dl>
+    </section>
+    <p class="updated">最終更新：{business.updated}</p>
+  </article>
+</BusinessLayout>
