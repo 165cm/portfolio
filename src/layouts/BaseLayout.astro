@@ -28,6 +28,7 @@ const base = import.meta.env.BASE_URL;
         <nav>
           <a href={base}>アプリ一覧</a>
           <a href={`${base}${base.endsWith('/') ? '' : '/'}about`}>このサイトについて</a>
+          <a href={`${base}${base.endsWith('/') ? '' : '/'}business/`}>事業者情報</a>
           <a href="https://github.com/165cm" target="_blank" rel="noopener">GitHub</a>
         </nav>
       </div>
@@ -40,6 +41,7 @@ const base = import.meta.env.BASE_URL;
     <footer class="site-footer">
       <div class="container">
         <p>© 165cm — 趣味で作ったものを置いておく場所</p>
+        <p>有料サービスの販売：<a href={`${base}${base.endsWith('/') ? '' : '/'}business/`}>ぱぱぞんアプリ（PAPAZON APPS）</a></p>
       </div>
     </footer>
   </body>
