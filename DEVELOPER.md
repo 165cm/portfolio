@@ -52,7 +52,8 @@ docs/
 
 `/business/` 以下は有料サービスの販売者ページ（Stripe の事業者サイト審査用・購入者向け）。
 トップ・特定商取引法に基づく表記・返金・キャンセルポリシー・利用規約・プライバシーポリシーの5ページ。
-屋号・連絡先・サービス・価格は `src/data/business.ts` が正本で、Stripe に登録した内容と一致させること。
+屋号・連絡先・サービス・価格・販売状況は `src/data/business.ts` が正本で、Stripe に登録した内容と一致させること。
+規約の方針（返金・解約・期間・問い合わせ対応・個人情報）は、165cm/construction2nd の `docs/legal/DRAFT_POLICY_PACK.md`（ユーザー選択済み）に合わせる。販売開始時は `status`・`statusNote` と規約の「販売開始後に適用」の文言を見直す。
 価格や規約を変えたら `business.updated`（最終更新日）も更新する。
 運営者の写真は `public/business/` に置き、`owner.image` にパス（例：`business/owner.jpg`）を入れる。空ならイニシャルのアイコン。
 配色は `.biz` で紺・青に上書きしていて、趣味の一覧の配色には影響しない。

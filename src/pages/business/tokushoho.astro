@@ -2,58 +2,71 @@
 import BusinessLayout from '../../layouts/BusinessLayout.astro';
 import { business, services, yen } from '../../data/business';
 const b = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/business`;
-const onRequest = '請求があった場合には遅滞なく開示いたします（下記メールアドレスまでご請求ください）';
 ---
 <BusinessLayout title={`特定商取引法に基づく表記 — ${business.name}`}>
   <article class="biz-page">
     <h1>特定商取引法に基づく表記</h1>
     <section>
       <dl class="info-list">
-          <div><dt>販売業者</dt><dd>{business.name}（{business.nameEn}）</dd></div>
-          <div><dt>運営責任者</dt><dd>{onRequest}</dd></div>
-          <div><dt>所在地</dt><dd>{onRequest}</dd></div>
-          <div><dt>電話番号</dt><dd>{onRequest}</dd></div>
-          <div><dt>メールアドレス</dt><dd><a href={`mailto:${business.email}`}>{business.email}</a><br /><span class="note">お問い合わせはメールにて承ります。</span></dd></div>
-          <div>
-            <dt>販売価格</dt>
-            <dd>
-              {services.map((s) => (
-                <div>
-                  {s.name}
-                  <ul>
-                    {s.plans.map((p) => <li>{p.name}：{yen(p.price)}（税込）／{p.unit}</li>)}
-                  </ul>
-                </div>
-              ))}
-            </dd>
-          </div>
-          <div><dt>無料で使える範囲</dt><dd>{services.map((s) => <div>{s.name}：{s.free}</div>)}</dd></div>
-          <div><dt>商品代金以外の必要料金</dt><dd>インターネット接続料金・通信料金はお客様のご負担となります。</dd></div>
-          <div><dt>お支払い方法</dt><dd>クレジットカード決済（決済代行：Stripe）</dd></div>
-          <div>
-            <dt>お支払い時期</dt>
-            <dd>
-              月額プラン：お申し込み時に初回分を決済し、以後1ヶ月ごとの更新日に自動で決済されます。<br />
-              3ヶ月プラン（買い切り）：ご購入時に1回のみ決済されます（自動更新はありません）。
-            </dd>
-          </div>
-          <div><dt>サービスの提供時期</dt><dd>決済完了後、すぐにご利用いただけます。</dd></div>
-          <div>
-            <dt>契約期間・解約</dt>
-            <dd>
-              月額プラン：1ヶ月ごとの自動更新です。次回更新日の前日までに解約手続きをすると、次回以降の請求は発生しません。解約後も、お支払い済みの期間の終了まではご利用いただけます。<br />
-              3ヶ月プラン：購入日から3ヶ月間ご利用いただけます。自動更新はなく、解約手続きは不要です。
-            </dd>
-          </div>
-          <div>
-            <dt>返品・キャンセル（返金）</dt>
-            <dd>
-              デジタルコンテンツの性質上、ご購入後のお客様都合による返金はお受けしておりません。
-              当方の不具合によりサービスをご利用いただけない場合は、返金を含めて個別に対応いたします。
-              詳しくは<a href={`${b}/refund/`}>返金・キャンセルポリシー</a>をご覧ください。
-            </dd>
-          </div>
-          <div><dt>動作環境</dt><dd>スマートフォン・パソコンの最新版のブラウザ（Safari・Google Chrome など）</dd></div>
+        <div><dt>販売事業者（屋号）</dt><dd>{business.name}（{business.nameEn}）</dd></div>
+        <div>
+          <dt>販売事業者の氏名・所在地・電話番号</dt>
+          <dd>販売事業者の氏名（正式な氏名）、所在地および電話番号は、下記メール窓口へのご請求により、購入のお申込みに先立ち、遅滞なく電子メール等で提供します。</dd>
+        </div>
+        <div>
+          <dt>お問い合わせ</dt>
+          <dd>
+            <a href={`mailto:${business.email}`}>{business.email}</a><br />
+            <span class="note">{business.replyTarget}カード番号・セキュリティコード・パスワードは送らないでください。</span>
+          </dd>
+        </div>
+        <div><dt>販売状況</dt><dd>{services.map((s) => <div>{s.name}：{s.status}。{s.statusNote}</div>)}</dd></div>
+        <div>
+          <dt>販売価格</dt>
+          <dd>
+            {services.map((s) => (
+              <div>
+                {s.name}
+                <ul>
+                  {s.plans.map((p) => <li>{p.name}：{yen(p.price)}（税込）／{p.unit}</li>)}
+                </ul>
+              </div>
+            ))}
+            <span class="note">月額プランを6回お支払いの場合は3,600円、12回の場合は7,200円です（支払額の目安で、最低契約期間ではありません）。</span>
+          </dd>
+        </div>
+        <div><dt>商品代金以外の必要料金</dt><dd>表示価格以外に当方が請求する追加料金はありません。インターネット通信料等はお客様のご負担です。</dd></div>
+        <div><dt>お支払い方法</dt><dd>カード決済（決済代行：Stripe）。ご利用いただけるカードの種類は決済画面でご確認ください。</dd></div>
+        <div>
+          <dt>お支払い時期</dt>
+          <dd>3か月集中パック：購入時に一括でお支払いいただきます。<br />月額プラン：初回購入時と、以後毎月の更新時にお支払いいただきます。<br />実際の引き落とし日はカード会社により異なります。</dd>
+        </div>
+        <div><dt>サービスの提供時期</dt><dd>決済と利用権の確認ができ次第、ご利用いただけます。</dd></div>
+        <div>
+          <dt>利用期間</dt>
+          <dd>
+            3か月集中パック：決済完了日から3か月後の同日の前日23:59まで（日本時間）。自動更新はなく、終了後の請求もありません。<br />
+            月額プラン：決済完了日の翌月同日の前日23:59まで（日本時間）。解約手続きをしない限り毎月自動で更新し、以後も最初の決済日を基準に計算します。<br />
+            <span class="note">{business.periodNote}</span>
+          </dd>
+        </div>
+        <div>
+          <dt>月額プランの解約</dt>
+          <dd>アプリの「契約管理・月額の解約」から、決済代行会社（Stripe）の契約管理画面を開いて手続きできます。アプリの「契約管理・月額の解約」から開くStripeの契約管理画面で、次回更新日時をご確認ください。次回の更新を止めるには、その日時より前に解約手続きを完了してください。解約後も、お支払い済みの期間の終わりまでご利用いただけます。</dd>
+        </div>
+        <div>
+          <dt>返品・キャンセル（返金）</dt>
+          <dd>
+            お客様のご都合による購入後の返金は、原則として受け付けていません（途中解約・未使用を理由とする日割りや残り期間分の返金もありません）。
+            重複請求は重複分を返金します。不具合はまず復旧に対応し、当方の原因で利用できない状態を解消できない場合は、該当するお支払いを全額返金します。
+            法令に基づくお客様の権利を制限するものではありません。詳しくは<a href={`${b}/refund/`}>返金・キャンセルポリシー</a>をご覧ください。
+          </dd>
+        </div>
+        <div><dt>申込期限</dt><dd>通常は申込期限はありません。期間を限定して販売する場合は、その都度表示します。</dd></div>
+        <div>
+          <dt>動作環境</dt>
+          <dd>スマートフォン・パソコンの最新版のブラウザ。有料機能の利用には、Googleアカウントでのログインとインターネット接続が必要です。iPhone・パソコンで動作を確認しており、Androidは確認後に対応予定です。ご購入前に、無料の問題で表示・操作をご確認ください。</dd>
+        </div>
       </dl>
     </section>
     <p class="updated">最終更新：{business.updated}</p>

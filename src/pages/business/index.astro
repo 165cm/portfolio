@@ -53,7 +53,7 @@ const values = [
         <div class="product">
           <div class="product-head">
             <div>
-              <span class="badge">販売中</span>
+              <span class="badge">{s.status}</span>
               <h3>{s.name}</h3>
               <p>{s.summary}</p>
               <ul>
@@ -62,8 +62,9 @@ const values = [
             </div>
             <img src={`${base}/${s.screenshots[0].src}`} alt={s.screenshots[0].alt} width="412" height="892" loading="lazy" />
           </div>
+          <p class="status-note">{s.statusNote}</p>
           <div class="scope">
-            <div class="free"><strong>無料で使える範囲</strong>{s.free}</div>
+            <div class="free"><strong>販売開始後に無料で使える範囲</strong>{s.free}</div>
             <div class="paid"><strong>有料プランで使える範囲</strong>{s.paid}</div>
           </div>
           <div class="plans">
@@ -76,8 +77,9 @@ const values = [
             ))}
           </div>
           <p class="note">
-            お支払い方法：クレジットカード（決済代行：Stripe）。決済完了後、すぐにご利用いただけます。
-            返金・解約については<a href={`${b}/refund/`}>返金・キャンセルポリシー</a>をご覧ください。
+            価格はすべて税込の総額です。{business.periodNote}
+            お支払い方法はカード決済（決済代行：Stripe）で、決済と利用権の確認ができ次第ご利用いただけます。
+            両プランの学習機能は同じです。返金・解約については<a href={`${b}/refund/`}>返金・キャンセルポリシー</a>をご覧ください。
           </p>
           <p><a class="btn primary" href={s.url} target="_blank" rel="noopener">サービスの詳細を見る</a></p>
         </div>
@@ -117,7 +119,7 @@ const values = [
     <section class="biz-block" id="contact">
       <div class="contact-band">
         <h2>お問い合わせ</h2>
-        <p>サービスの内容・お支払い・解約・返金などのご質問は、メールでお気軽にどうぞ。原則3営業日以内にご返信します。</p>
+        <p>サービスの内容・お支払い・解約・返金などのご質問は、メールでお気軽にどうぞ。{business.replyTarget}</p>
         <a class="btn light" href={`mailto:${business.email}`}>{business.email}</a>
       </div>
     </section>
