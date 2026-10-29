@@ -131,6 +131,26 @@ export const apps: App[] = [
     },
   },
   {
+    slug: 'construction2nd',
+    platform: 'webapp',
+    date: '2026-10',
+    name: '第二種電気工事士 過去問サクサク道場',
+    emoji: '⚡',
+    tagline: '第二種電気工事士の過去問250問を、スマホで1問1答。スキマ時間で学科試験対策',
+    category: 'work',
+    useCases: [
+      '仕事が忙しく、まとまった勉強時間が取れないとき',
+      '通勤・休憩中にスマホで過去問を解きたいとき',
+      '配線図の小さな文字をスマホで拡大して確認したいとき',
+    ],
+    motivation: 'エアコン修理の繁忙期に第二種電気工事士の受験を決め、限られた時間で勉強するために自分用に作りました。これで学科試験に合格したので、同じように忙しい人向けに整えて公開しています。直近1回分は無料、それより前の回は有料プランで提供しています（販売：ぱぱぞんアプリ）。',
+    tech: ['React', 'Vite', 'Tailwind CSS', 'PWA', 'GitHub Pages'],
+    links: {
+      demo: 'https://165cm.github.io/construction2nd/lp/',
+      repo: 'https://github.com/165cm/construction2nd',
+    },
+  },
+  {
     slug: 'field-engineer-route-optimizer',
     platform: 'webapp',
     date: '2025-02',
