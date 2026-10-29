@@ -27,6 +27,7 @@ const onRequest = '請求があった場合には遅滞なく開示いたしま�
               ))}
             </dd>
           </div>
+          <div><dt>無料で使える範囲</dt><dd>{services.map((s) => <div>{s.name}：{s.free}</div>)}</dd></div>
           <div><dt>商品代金以外の必要料金</dt><dd>インターネット接続料金・通信料金はお客様のご負担となります。</dd></div>
           <div><dt>お支払い方法</dt><dd>クレジットカード決済（決済代行：Stripe）</dd></div>
           <div>

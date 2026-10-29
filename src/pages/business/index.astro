@@ -1,36 +1,71 @@
 ---
 import BusinessLayout from '../../layouts/BusinessLayout.astro';
-import { business, services, yen } from '../../data/business';
-const b = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/business`;
+import { business, owner, services, yen } from '../../data/business';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const b = `${base}/business`;
+const main = services[0];
+const values = [
+  { icon: '⚡', title: '現場目線の教材づくり', text: '電気・設備の仕事に携わる立場から、試験で問われるポイントを実務とつなげて解説します。' },
+  { icon: '📱', title: 'スマホで、スキマ時間に', text: '片手で操作できる画面と、1問ずつ進む作りで、通勤や休憩の数分でも学習を進められます。' },
+  { icon: '🛠', title: '報告にすぐ対応', text: '問題や解説の誤りは、アプリ内の報告ボタンから受け付け、原本と照らし合わせて修正しています。' },
+];
 ---
-<BusinessLayout title={`${business.name}（${business.nameEn}）`}>
-  <article class="biz-page">
-    <h1>{business.name}<br /><small>{business.nameEn}</small></h1>
-    <p class="lead">
-      {business.name}は、資格学習などのWebアプリを企画・開発・販売している個人事業です。
-      スマートフォンで手軽に使える、実用的な学習ツールを提供しています。
-    </p>
+<BusinessLayout title={`${business.name}（${business.nameEn}）— 資格学習Webアプリの開発・販売`}>
+  <section class="biz-hero">
+    <div class="biz-hero-inner">
+      <div>
+        <p class="eyebrow">{business.nameEn}</p>
+        <h1>現場で働く人の資格勉強を、<br />スマホひとつで。</h1>
+        <p>
+          {business.name}は、資格学習などのWebアプリを企画・開発・販売している個人事業です。
+          仕事の合間でも続けられる、実用的な学習ツールをお届けします。
+        </p>
+        <div class="actions">
+          <a class="btn light" href="#services">サービス・料金を見る</a>
+          <a class="btn ghost" href="#contact">お問い合わせ</a>
+        </div>
+      </div>
+      <div class="phones">
+        {main.screenshots.map((img) => <img src={`${base}/${img.src}`} alt={img.alt} width="412" height="892" />)}
+      </div>
+    </div>
+  </section>
 
-    <section>
-      <h2>事業者情報</h2>
-      <dl class="info-list">
-          <div><dt>屋号</dt><dd>{business.name}（{business.nameEn}）</dd></div>
-          <div><dt>事業形態</dt><dd>個人事業</dd></div>
-          <div><dt>事業内容</dt><dd>{business.description}</dd></div>
-          <div><dt>お問い合わせ</dt><dd><a href={`mailto:${business.email}`}>{business.email}</a></dd></div>
-          <div><dt>法令に基づく表記</dt><dd><a href={`${b}/tokushoho/`}>特定商取引法に基づく表記</a></dd></div>
-      </dl>
+  <div class="biz-home">
+    <section class="biz-block">
+      <p class="kicker">WHAT WE DO</p>
+      <h2>事業内容</h2>
+      <div class="values">
+        {values.map((v) => (
+          <div class="value">
+            <div class="icon" aria-hidden="true">{v.icon}</div>
+            <h3>{v.title}</h3>
+            <p>{v.text}</p>
+          </div>
+        ))}
+      </div>
     </section>
 
-    <section id="services">
+    <section class="biz-block" id="services">
+      <p class="kicker">SERVICES &amp; PRICING</p>
       <h2>サービス・料金</h2>
       {services.map((s) => (
-        <div>
-          <h3>{s.name}</h3>
-          <p>{s.summary}</p>
-          <ul>
-            {s.features.map((f) => <li>{f}</li>)}
-          </ul>
+        <div class="product">
+          <div class="product-head">
+            <div>
+              <span class="badge">販売中</span>
+              <h3>{s.name}</h3>
+              <p>{s.summary}</p>
+              <ul>
+                {s.features.map((f) => <li>{f}</li>)}
+              </ul>
+            </div>
+            <img src={`${base}/${s.screenshots[0].src}`} alt={s.screenshots[0].alt} width="412" height="892" loading="lazy" />
+          </div>
+          <div class="scope">
+            <div class="free"><strong>無料で使える範囲</strong>{s.free}</div>
+            <div class="paid"><strong>有料プランで使える範囲</strong>{s.paid}</div>
+          </div>
           <div class="plans">
             {s.plans.map((p) => (
               <div class="plan">
@@ -49,13 +84,42 @@ const b = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/business`;
       ))}
     </section>
 
-    <section id="contact">
-      <h2>お問い合わせ</h2>
-      <p>
-        サービスの内容・お支払い・解約・返金などのご質問は、下記のメールアドレスまでご連絡ください。
-        原則として3営業日以内にご返信します。
-      </p>
-      <p><a class="btn" href={`mailto:${business.email}`}>{business.email}</a></p>
+    <section class="biz-block" id="about">
+      <p class="kicker">ABOUT</p>
+      <h2>運営者プロフィール</h2>
+      <div class="profile">
+        {owner.image
+          ? <img class="avatar" src={`${base}/${owner.image}`} alt={owner.name} width="112" height="112" />
+          : <div class="avatar initial" aria-hidden="true">{owner.initial}</div>}
+        <div>
+          <p class="name">{owner.name}</p>
+          <p class="role">{business.name} {owner.role}</p>
+          {owner.bio.map((t) => <p>{t}</p>)}
+        </div>
+      </div>
     </section>
-  </article>
+
+    <section class="biz-block">
+      <p class="kicker">COMPANY</p>
+      <h2>事業者情報</h2>
+      <div class="card-box">
+        <dl class="info-list">
+          <div><dt>屋号</dt><dd>{business.name}（{business.nameEn}）</dd></div>
+          <div><dt>代表</dt><dd>{owner.name}</dd></div>
+          <div><dt>事業形態</dt><dd>個人事業</dd></div>
+          <div><dt>事業内容</dt><dd>{business.description}</dd></div>
+          <div><dt>お問い合わせ</dt><dd><a href={`mailto:${business.email}`}>{business.email}</a></dd></div>
+          <div><dt>法令に基づく表記</dt><dd><a href={`${b}/tokushoho/`}>特定商取引法に基づく表記</a></dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="biz-block" id="contact">
+      <div class="contact-band">
+        <h2>お問い合わせ</h2>
+        <p>サービスの内容・お支払い・解約・返金などのご質問は、メールでお気軽にどうぞ。原則3営業日以内にご返信します。</p>
+        <a class="btn light" href={`mailto:${business.email}`}>{business.email}</a>
+      </div>
+    </section>
+  </div>
 </BusinessLayout>
