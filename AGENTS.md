@@ -26,6 +26,7 @@
 3. **README は一般ユーザー向け / DEVELOPER は開発者向け** — 役割を混ぜない
 4. **コミットは Conventional Commits**: `commits.md` の形式で
 5. **公開作品なら portfolio に登録**: T1 以上を新規公開する際は `src/data/apps.ts` への追加 PR をセットで作る
+6. **portfolio 掲載作品はスクリーンショットを自リポに置く**: `docs/portfolio/phone.webp`（または `wide.webp`）。画面を変えたら差し替える（[ops.md](./docs/standards/ops.md)）
 
 ## 🗂 portfolio リポジトリ固有のメモ
 

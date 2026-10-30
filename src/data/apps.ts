@@ -86,6 +86,21 @@ export type App = {
   howTo?: string;
   tech: string[];
   links: { demo?: string; repo: string; blog?: string };
+  // トップページに「実績」として載せる作品だけが持つ情報。
+  // これが無い作品はサイト上では非表示（データは残しておき、載せ直す時に showcase を足す）。
+  showcase?: Showcase;
+};
+
+export type Showcase = {
+  order: number; // 表示順（小さいほど上）
+  image?: string; // public/ からのパス。無ければ figures を図として表示する
+  imageKind?: 'phone' | 'wide'; // 縦長のスマホ画面か、横長の画面・バナーか
+  imageAlt?: string;
+  figures?: { label: string; value: string }[]; // 画像の代わりに見せる数値
+  figuresNote?: string; // figures の出どころ
+  skills: string[]; // 発注者に伝わる「作れること」
+  points: string[]; // 作品の見どころ（3つ程度）
+  proof: string; // 実績を一言で（有償販売・テスト件数など）
 };
 
 export const apps: App[] = [
@@ -94,9 +109,9 @@ export const apps: App[] = [
     slug: 'aircon-repair',
     platform: 'site',
     date: '2024-05',
-    name: 'エアコン修理高等学校',
+    name: 'エアコン保健室',
     emoji: '❄️',
-    tagline: '症状から自分で原因を切り分けられる、エアコンの困った辞典',
+    tagline: '症状から「次の一手」を選べる、エアコントラブル対処ガイド',
     category: 'work',
     useCases: [
       'エアコンが冷えない・水漏れ・異音が出たとき',
@@ -104,9 +119,22 @@ export const apps: App[] = [
       '応急処置の方法や安全な補助グッズを知りたいとき',
     ],
     motivation: '夏にエアコンが止まると本当に困る。業者を呼ぶ前に自分で判断できる材料が欲しくて、症状別に整理した情報サイトを作りました。',
-    tech: ['Astro', 'GitHub Pages', 'GitHub Actions'],
+    tech: ['Astro', 'TypeScript', 'GitHub Actions', '独自ドメイン'],
+    showcase: {
+      order: 4,
+      image: 'works/aircon-repair.webp',
+      imageKind: 'wide',
+      imageAlt: 'エアコン保健室のメインビジュアル',
+      skills: ['情報サイト・LP', 'SEO', 'チャット形式の診断', '独自ドメイン運用'],
+      points: [
+        '症状を選ぶと、危険サイン → 自分で確認 → 修理か買い替え の順に案内',
+        '家電修理の現場で働く立場から、やってよいこと・ダメなことを線引き',
+        'Astro で作った軽い静的サイトを、独自ドメインで運用',
+      ],
+      proof: '現場の知識をそのまま情報サイトに',
+    },
     links: {
-      demo: 'https://165cm.github.io/aircon-repair/',
+      demo: 'https://aircon-hokenshitsu.com/',
       repo: 'https://github.com/165cm/aircon-repair',
     },
   },
@@ -145,6 +173,19 @@ export const apps: App[] = [
     ],
     motivation: 'エアコン修理の繁忙期に第二種電気工事士の受験を決め、限られた時間で勉強するために自分用に作りました。これで学科試験に合格したので、同じように忙しい人向けに整えて公開しています。いまは全5回分を無料で公開しており、有料プラン（販売：ぱぱぞんアプリ）は販売開始に向けて準備中です。',
     tech: ['React', 'Vite', 'Tailwind CSS', 'PWA', 'GitHub Pages'],
+    showcase: {
+      order: 1,
+      image: 'works/construction2nd.webp',
+      imageKind: 'phone',
+      imageAlt: '過去問サクサク道場の問題演習画面',
+      skills: ['スマホPWA', '学習アプリ', 'ゲーミフィケーション', '有料プラン設計'],
+      points: [
+        '過去問250問を1問1答で即時判定。間違えた問題は自動で「要復習」に入る',
+        '本番と同じ120分・50問の模擬試験モードと、配線図の高精細ビューア',
+        '自分が学科試験に合格した教材を、販売できる形に整えて公開',
+      ],
+      proof: '作者本人がこのアプリで学科試験に合格',
+    },
     links: {
       demo: 'https://165cm.github.io/construction2nd/lp/',
       repo: 'https://github.com/165cm/construction2nd',
@@ -254,17 +295,30 @@ export const apps: App[] = [
     slug: 'matagochi',
     platform: 'webapp',
     date: '2026-06',
-    name: 'またごち',
+    name: 'リピごち',
     emoji: '🍚',
-    tagline: '家族の「また食べたい」を残す、ごはんメモ',
+    tagline: '今夜の一品を決めて、買い物して、おいしかったを残す。夜ごはんの提案アプリ',
     category: 'family',
     useCases: [
+      '毎日の夜ごはんを考えるのがしんどいとき',
       'SNSで見つけたレシピ動画をあとから探し直したいとき',
-      '家族ごとの「また食べたい」度を残したいとき',
-      'レシピアプリほど重くない、家庭用のごはんメモを試したいとき',
+      '家族ごとの「また食べたい」を残して、次の献立に生かしたいとき',
     ],
     motivation: 'SNSで見つけたレシピ動画は、後から探すのが意外と大変。家族の反応まで一緒に残せれば、次に作る判断が楽になると思って作りました。',
-    tech: ['HTML/JavaScript', 'GitHub Pages', 'localStorage'],
+    tech: ['HTML/JavaScript', 'PWA', 'Gemini API', 'Cloud Run', 'GitHub Pages'],
+    showcase: {
+      order: 5,
+      image: 'works/matagochi.webp',
+      imageKind: 'phone',
+      imageAlt: 'リピごちの「今日」画面',
+      skills: ['AI連携（Gemini）', 'クラウドAPI', 'PWA', 'SNS共有からの取り込み'],
+      points: [
+        '好み・調理時間・常備品から、夜ごはんを1日1品提案。買い物リストまでつながる',
+        'レシピ動画の説明文や画像から、AI が材料と手順の下書きを作成',
+        'スマホの共有メニューから、YouTube や TikTok の URL をそのまま受け取る',
+      ],
+      proof: 'AI を「使える機能」に落とし込んだ例',
+    },
     links: {
       demo: 'https://165cm.github.io/matagochi/',
       repo: 'https://github.com/165cm/matagochi',
@@ -409,6 +463,42 @@ export const apps: App[] = [
 
   // ── 投資・お金 ───────────────────────────────────────────
   {
+    slug: 'uberoi',
+    platform: 'webapp',
+    date: '2026-10',
+    name: 'デリ勘',
+    emoji: '🚲',
+    tagline: '自転車デリバリー副業の「本当の時給」と投資の回収具合がわかる収益計算アプリ',
+    category: 'money',
+    useCases: [
+      'シェアサイクル代や装備代を引いた、本当の時給を知りたいとき',
+      '今日はもう少し続けるか、帰るかを数字で決めたいとき',
+      '電動アシスト自転車などへの投資が、いつ回収できるかを見たいとき',
+    ],
+    motivation: '売上の数字だけ見ていると、レンタル代や装備代を引いた「手元に残る額」がわからない。出発から帰宅まで記録すれば、本当の時給と投資の回収率が出るようにしました。',
+    tech: ['React', 'TypeScript', 'Vite', 'IndexedDB（Dexie）', 'PWA', 'Vitest', 'Playwright'],
+    links: {
+      demo: 'https://165cm.github.io/UbeROI/',
+      repo: 'https://github.com/165cm/UbeROI',
+    },
+    showcase: {
+      order: 2,
+      figures: [
+        { label: '本当の時給', value: '1,740円' },
+        { label: '投資の回収率', value: '17.4%' },
+        { label: '自動テスト', value: '126件' },
+      ],
+      figuresNote: '時給と回収率は仕様書の計算例（売上7,180円・3時間・レンタル代1,760円など）',
+      skills: ['仕様書からの開発', '自動テスト・CI', 'オフライン対応PWA', 'データのバックアップ'],
+      points: [
+        '出発・レンタル・帰宅の記録から、経費と投資を引いた本当の時給を計算',
+        '電波がない場所でも記録でき、データはスマホの中だけに保存',
+        '仕様の受入基準を、単体テスト112件とE2Eテスト14件で毎回確認',
+      ],
+      proof: '受入基準を自動テストで確認してから公開',
+    },
+  },
+  {
     slug: 'firstrade-calculator-app',
     platform: 'webapp',
     date: '2024-03',
@@ -422,8 +512,22 @@ export const apps: App[] = [
       '為替レートを毎回手計算するのが面倒なとき',
     ],
     motivation: '自分自身がFirstradeで取引していて、毎年の確定申告が地獄だったので作りました。プレミアム版はGumroadで販売中。',
-    tech: ['TypeScript', 'Gumroad'],
+    tech: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Gumroad'],
+    showcase: {
+      order: 3,
+      image: 'works/firstrade.webp',
+      imageKind: 'wide',
+      imageAlt: 'Firstrade 確定申告支援ツールの配当金明細画面',
+      skills: ['業務の自動化', 'CSV取り込み・集計', 'グラフ表示', 'ライセンス販売'],
+      points: [
+        '証券会社のCSVを読み込むだけで、配当金・売買損益を円に換算して集計',
+        '為替レートの取得、月別のグラフ、確定申告用のCSV書き出しまで一続き',
+        '独自ドメインで公開し、プレミアム機能を年間ライセンスで販売',
+      ],
+      proof: '有償ライセンスを販売中',
+    },
     links: {
+      demo: 'https://firstrade.nomadkazoku.com/',
       repo: 'https://github.com/165cm/firstrade-calculator-app',
     },
   },
@@ -652,3 +756,8 @@ export const apps: App[] = [
 export const appsByCategory = (cat: Category) => apps.filter((a) => a.category === cat);
 
 export const appsByPlatform = (p: Platform) => apps.filter((a) => a.platform === p);
+
+// サイトに載せる作品（showcase を持つもの）を表示順に並べたもの
+export const featuredApps = apps
+  .filter((a): a is App & { showcase: Showcase } => Boolean(a.showcase))
+  .sort((a, b) => a.showcase.order - b.showcase.order);

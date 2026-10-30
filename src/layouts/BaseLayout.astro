@@ -4,8 +4,8 @@ interface Props {
   title: string;
   description?: string;
 }
-const { title, description = '165cmが趣味で作っているアプリの紹介サイト。日常の「ちょっと困った」を自作で解決しています。' } = Astro.props;
-const base = import.meta.env.BASE_URL;
+const { title, description = '個人開発者 165cm のポートフォリオ。現場や暮らしの困りごとを、スマホで使える小さなアプリにしています。小さなツールの開発相談も受け付けています。' } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <!doctype html>
 <html lang="ja">
@@ -24,12 +24,13 @@ const base = import.meta.env.BASE_URL;
   <body>
     <header class="site-header">
       <div class="container">
-        <a href={base} class="brand">165cm の作りもの</a>
+        <a href={`${base}/`} class="brand">165cm</a>
         <nav>
-          <a href={base}>アプリ一覧</a>
-          <a href={`${base}${base.endsWith('/') ? '' : '/'}about`}>このサイトについて</a>
-          <a href={`${base}${base.endsWith('/') ? '' : '/'}business/`}>事業者情報</a>
+          <a href={`${base}/#works`}>作品</a>
+          <a href={`${base}/#services`}>できること</a>
+          <a href={`${base}/about`}>プロフィール</a>
           <a href="https://github.com/165cm" target="_blank" rel="noopener">GitHub</a>
+          <a class="nav-cta" href={`${base}/#consult`}>相談する</a>
         </nav>
       </div>
     </header>
@@ -40,8 +41,8 @@ const base = import.meta.env.BASE_URL;
 
     <footer class="site-footer">
       <div class="container">
-        <p>© 165cm — 趣味で作ったものを置いておく場所</p>
-        <p>有料サービスの販売：<a href={`${base}${base.endsWith('/') ? '' : '/'}business/`}>ぱぱぞんアプリ（PAPAZON APPS）</a></p>
+        <p>© 165cm — 現場と暮らしの小さなアプリ</p>
+        <p>事業者情報・有料サービスの販売：<a href={`${base}/business/`}>ぱぱぞんアプリ（PAPAZON APPS）</a></p>
       </div>
     </footer>
   </body>

@@ -1,0 +1,412 @@
+---
+// 開発相談チャット。いくつかの質問に答えてもらい、最後に相談内容をまとめたメールの
+// 下書きを作る（送信は相談者自身のメールアプリから）。サーバーを持たない静的サイトのため、
+// 応答は決まった流れの自動応答で、入力内容はどこにも送らない。
+import { featuredApps } from '../data/apps';
+import { consult } from '../data/consult';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+// 種類ごとに紹介する実績（slug → 名前・詳細ページ）
+const works = Object.fromEntries(
+  featuredApps.map((a) => [a.slug, { name: a.name, url: `${base}/apps/${a.slug}` }])
+);
+---
+<div class="chat" data-email={consult.email} data-works={JSON.stringify(works)}>
+  <div class="chat-head">
+    <span class="chat-avatar" aria-hidden="true">165</span>
+    <div>
+      <p class="chat-title">開発相談チャット</p>
+      <p class="chat-sub">質問に答えると、相談メールの下書きができます</p>
+    </div>
+    <button type="button" class="chat-reset" hidden>はじめから</button>
+  </div>
+  <div class="chat-log" aria-live="polite"></div>
+  <div class="chat-input"></div>
+  <noscript>
+    <p class="chat-noscript">
+      チャットを使うには JavaScript を有効にしてください。
+      メールでのご相談は <a href={`mailto:${consult.email}`}>{consult.email}</a> へどうぞ。
+    </p>
+  </noscript>
+</div>
+<p class="chat-note">
+  入力した内容はこのページの中だけで使い、どこにも送信しません。最後にお使いのメールアプリで送っていただく形です。
+  パスワードや個人情報は書かないでください。{consult.replyNote}
+</p>
+
+<script>
+  type Work = { name: string; url: string };
+  type State = Record<'kind' | 'problem' | 'users' | 'timing' | 'budget' | 'name', string>;
+  type Step = {
+    key: keyof State;
+    ask: (s: State) => string;
+    options?: string[];
+    placeholder?: string;
+    multiline?: boolean;
+    optional?: boolean;
+  };
+
+  // 作りたいものの種類 → 関連する実績の slug と、ひとこと
+  const kindReplies: Record<string, { slug?: string; text: string }> = {
+    '業務の小さなツール': { slug: 'uberoi', text: '業務の小さなツールは得意分野です。記録から本当の時給を計算する「{work}」のようなものを作っています。' },
+    '学習・クイズアプリ': { slug: 'construction2nd', text: '学習アプリなら、自分で試験に合格した「{work}」の仕組みが生かせます。' },
+    '情報サイト・LP': { slug: 'aircon-repair', text: '情報サイトなら「{work}」のように、専門知識を整理して見せる形が作れます。' },
+    'AIを使った機能': { slug: 'matagochi', text: 'AIの組み込みは「{work}」で、動画の説明文や画像から材料を取り出す機能を作っています。' },
+    '今あるツールの改修': { text: '今あるツールの改修や、ちょっとした機能の追加もご相談ください。' },
+    'まだ決まっていない': { text: '大丈夫です。困りごとから一緒に考えましょう。' },
+  };
+
+  const stepsDef: Step[] = [
+    {
+      key: 'kind',
+      ask: () => 'こんにちは、165cm です。どんなものを作りたいですか？近いものを選んでください。',
+      options: Object.keys(kindReplies),
+    },
+    {
+      key: 'problem',
+      ask: () => 'いま困っていること、やりたいことを教えてください。箇条書きや、ひとことでも大丈夫です。',
+      placeholder: '例）現場の点検記録を紙で書いていて、集計に毎月半日かかっている',
+      multiline: true,
+    },
+    {
+      key: 'users',
+      ask: () => 'ありがとうございます。それを使うのは誰ですか？',
+      options: ['自分だけ', '社内・チームの数人', 'お客さま・一般の人'],
+    },
+    {
+      key: 'timing',
+      ask: () => '希望の時期はありますか？',
+      options: ['1か月以内', '2〜3か月くらい', '特に決まっていない'],
+    },
+    {
+      key: 'budget',
+      ask: () => 'ご予算の目安があれば教えてください。',
+      options: ['〜5万円', '5〜15万円', '15〜30万円', 'まだわからない'],
+    },
+    {
+      key: 'name',
+      ask: () => '最後に、お名前を教えてください（ニックネームや会社名でも大丈夫です）。',
+      placeholder: '例）山田 / ○○工務店',
+      optional: true,
+    },
+  ];
+
+  function setupChat(root: HTMLElement) {
+    const email = root.dataset.email ?? '';
+    const works = JSON.parse(root.dataset.works ?? '{}') as Record<string, Work>;
+    const log = root.querySelector<HTMLElement>('.chat-log')!;
+    const input = root.querySelector<HTMLElement>('.chat-input')!;
+    const reset = root.querySelector<HTMLButtonElement>('.chat-reset')!;
+
+    let state: State;
+    let index: number;
+    // 遅れて出す発言のタイマー。「はじめから」で前の会話の分を取り消す
+    let timers: number[] = [];
+    const later = (fn: () => void, ms: number) => {
+      timers.push(window.setTimeout(fn, ms));
+    };
+
+    const scroll = () => {
+      log.scrollTop = log.scrollHeight;
+    };
+
+    // 吹き出しを1つ足す。bot の発言は少し間をおいて出す。
+    function say(from: 'bot' | 'me', build: (el: HTMLElement) => void) {
+      const el = document.createElement('div');
+      el.className = `msg msg--${from}`;
+      build(el);
+      log.appendChild(el);
+      scroll();
+    }
+    const botText = (text: string) => say('bot', (el) => (el.textContent = text));
+
+    function botWithWork(text: string, slug?: string) {
+      const work = slug ? works[slug] : undefined;
+      say('bot', (el) => {
+        if (!work) {
+          el.textContent = text;
+          return;
+        }
+        const [before, after] = text.split('{work}');
+        el.append(before);
+        const a = document.createElement('a');
+        a.href = work.url;
+        a.textContent = work.name;
+        el.append(a, after ?? '');
+      });
+    }
+
+    function ask() {
+      const step = stepsDef[index];
+      input.replaceChildren();
+      if (!step) {
+        finish();
+        return;
+      }
+      later(() => {
+        botText(step.ask(state));
+        renderInput(step);
+      }, 350);
+    }
+
+    function answer(step: Step, value: string) {
+      state[step.key] = value;
+      say('me', (el) => (el.textContent = value || '（スキップ）'));
+      reset.hidden = false;
+      input.replaceChildren();
+      if (step.key === 'kind') {
+        const r = kindReplies[value];
+        later(() => botWithWork(r.text, r.slug), 300);
+      }
+      index += 1;
+      later(ask, step.key === 'kind' ? 500 : 0);
+    }
+
+    function renderInput(step: Step) {
+      if (step.options) {
+        const wrap = document.createElement('div');
+        wrap.className = 'chips';
+        for (const opt of step.options) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'chip';
+          b.textContent = opt;
+          b.addEventListener('click', () => answer(step, opt));
+          wrap.appendChild(b);
+        }
+        input.appendChild(wrap);
+        return;
+      }
+      const form = document.createElement('form');
+      form.className = 'text-form';
+      const field = document.createElement(step.multiline ? 'textarea' : 'input');
+      field.className = 'text-field';
+      field.setAttribute('aria-label', '回答');
+      field.placeholder = step.placeholder ?? '';
+      if (field instanceof HTMLTextAreaElement) field.rows = 3;
+      const send = document.createElement('button');
+      send.type = 'submit';
+      send.className = 'send';
+      send.textContent = step.optional ? '送る / スキップ' : '送る';
+      form.append(field, send);
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const v = field.value.trim();
+        if (!v && !step.optional) {
+          field.focus();
+          return;
+        }
+        answer(step, v);
+      });
+      input.appendChild(form);
+      field.focus({ preventScroll: true });
+    }
+
+    function buildMail() {
+      const lines = [
+        '165cm さん',
+        '',
+        'ポートフォリオサイトの相談チャットから、開発のご相談です。',
+        '',
+        `■ 作りたいもの：${state.kind}`,
+        `■ 困っていること・やりたいこと：\n${state.problem}`,
+        `■ 使う人：${state.users}`,
+        `■ 希望の時期：${state.timing}`,
+        `■ 予算の目安：${state.budget}`,
+        '',
+        '（補足があれば、ここに書いてください）',
+        '',
+        state.name ? `${state.name}` : '',
+      ];
+      const subject = `【開発のご相談】${state.kind}${state.name ? `（${state.name}）` : ''}`;
+      return { subject, body: lines.join('\n').trim() };
+    }
+
+    function finish() {
+      const { subject, body } = buildMail();
+      later(() => {
+        botText('ありがとうございます！相談内容をメールの下書きにまとめました。内容を確認して、送ってください。');
+        say('bot', (el) => {
+          el.classList.add('msg--summary');
+          const pre = document.createElement('pre');
+          pre.textContent = body;
+          el.appendChild(pre);
+        });
+        const actions = document.createElement('div');
+        actions.className = 'finish';
+        const mail = document.createElement('a');
+        mail.className = 'btn primary';
+        mail.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        mail.textContent = '✉️ メールアプリで送る';
+        const copy = document.createElement('button');
+        copy.type = 'button';
+        copy.className = 'btn';
+        copy.textContent = '📋 内容をコピー';
+        copy.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(`件名：${subject}\n宛先：${email}\n\n${body}`);
+            copy.textContent = '✅ コピーしました';
+          } catch {
+            copy.textContent = 'コピーできませんでした';
+          }
+        });
+        const hint = document.createElement('p');
+        hint.className = 'finish-hint';
+        hint.textContent = `メールアプリが開かない場合は、内容をコピーして ${email} へ送ってください。`;
+        actions.append(mail, copy, hint);
+        input.replaceChildren(actions);
+        scroll();
+      }, 350);
+    }
+
+    function start() {
+      timers.forEach((t) => window.clearTimeout(t));
+      timers = [];
+      state = { kind: '', problem: '', users: '', timing: '', budget: '', name: '' };
+      index = 0;
+      log.replaceChildren();
+      reset.hidden = true;
+      ask();
+    }
+
+    reset.addEventListener('click', start);
+    start();
+  }
+
+  document.querySelectorAll<HTMLElement>('.chat').forEach(setupChat);
+</script>
+
+<style>
+  .chat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .chat-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .chat-avatar {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--ink);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+  .chat-title { margin: 0; font-weight: 700; line-height: 1.4; }
+  .chat-sub { margin: 0; font-size: 0.8rem; color: var(--ink-soft); line-height: 1.4; }
+  .chat-reset {
+    margin-left: auto;
+    font: inherit;
+    font-size: 0.8rem;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 12px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .chat-reset[hidden] { display: none; }
+  .chat-log {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px;
+    min-height: 260px;
+    max-height: 460px;
+    overflow-y: auto;
+  }
+  .chat-log :global(.msg) {
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    animation: pop 0.2s ease-out;
+  }
+  .chat-log :global(.msg--bot) {
+    align-self: flex-start;
+    background: var(--surface-2);
+    border-bottom-left-radius: 4px;
+  }
+  .chat-log :global(.msg--me) {
+    align-self: flex-end;
+    background: var(--ink);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  .chat-log :global(.msg--summary) { max-width: 100%; width: 100%; background: #fff; border: 1px dashed var(--border-strong); }
+  .chat-log :global(.msg--summary pre) {
+    margin: 0;
+    font: inherit;
+    font-size: 0.88rem;
+    white-space: pre-wrap;
+  }
+  .chat-input { padding: 0 18px 18px; }
+  .chat-input :global(.chips) { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chat-input :global(.chip) {
+    font: inherit;
+    font-size: 0.92rem;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--accent);
+    background: #fff;
+    color: var(--accent);
+    cursor: pointer;
+  }
+  .chat-input :global(.chip:hover) { background: var(--accent); color: #fff; }
+  .chat-input :global(.text-form) { display: flex; gap: 8px; align-items: flex-end; }
+  .chat-input :global(.text-field) {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
+    font-size: 16px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    resize: vertical;
+  }
+  .chat-input :global(.send) {
+    font: inherit;
+    font-size: 0.92rem;
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .chat-input :global(.finish) { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .chat-input :global(.finish-hint) { flex-basis: 100%; margin: 0; font-size: 0.8rem; color: var(--ink-soft); word-break: break-all; }
+  .chat-noscript { padding: 0 18px 18px; margin: 0; }
+  .chat-note {
+    max-width: 720px;
+    margin: 12px auto 0;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chat-log :global(.msg) { animation: none; }
+  }
+</style>

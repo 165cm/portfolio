@@ -1,28 +1,44 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { apps, categories, platforms } from '../../data/apps';
+import { featuredApps, platforms } from '../../data/apps';
+import { resolveShots } from '../../data/screenshots';
 
+// 詳細ページはサイトに載せている作品（showcase を持つもの）だけ作る
 export function getStaticPaths() {
-  return apps.map((app) => ({ params: { slug: app.slug }, props: { app } }));
+  return featuredApps.map((app) => ({ params: { slug: app.slug }, props: { app } }));
 }
 
 const { app } = Astro.props;
-const cat = categories[app.category];
+const sc = app.showcase;
+const shot = (await resolveShots(featuredApps))[app.slug];
 const plat = platforms[app.platform];
-const base = import.meta.env.BASE_URL;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<BaseLayout title={`${app.name} — 165cm の作りもの`} description={app.tagline}>
+<BaseLayout title={`${app.name} — 165cm`} description={app.tagline}>
   <article class="app-detail">
-    <a class="back" href={base}>← 一覧へ戻る</a>
+    <a class="back" href={`${base}/#works`}>← 作品一覧へ戻る</a>
 
     <div class="head">
       <span class="emoji">{app.emoji}</span>
       <div>
         <h1>{app.name}</h1>
-        <span class="tag" style="background:#e9d8c1;color:#5a3a1c;">{cat.emoji} {cat.label}</span>
+        <span class="tag">{plat.emoji} {plat.label}</span>
       </div>
     </div>
     <p class="tagline">{app.tagline}</p>
+
+    {shot && (
+      <figure class:list={['shot', `shot--${shot.kind}`]}>
+        <img src={`${base}/${shot.src}`} alt={shot.alt} />
+      </figure>
+    )}
+
+    <section>
+      <h2>✨ 見どころ</h2>
+      <ul>
+        {sc.points.map((p) => <li>{p}</li>)}
+      </ul>
+    </section>
 
     <section>
       <h2>💡 こんな時に使えます</h2>
@@ -54,13 +70,34 @@ const base = import.meta.env.BASE_URL;
       <h2>🔗 リンク</h2>
       <div class="links">
         {app.links.demo && (
-          <a class="btn primary" href={app.links.demo} target="_blank" rel="noopener">{plat.emoji} {plat.linkLabel}</a>
+          <a class="btn primary" href={app.links.demo} target="_blank" rel="noopener">{plat.linkLabel} ↗</a>
         )}
-        <a class="btn" href={app.links.repo} target="_blank" rel="noopener">📦 コードを見る (GitHub)</a>
+        <a class="btn" href={app.links.repo} target="_blank" rel="noopener">コードを見る（GitHub）</a>
         {app.links.blog && (
-          <a class="btn" href={app.links.blog} target="_blank" rel="noopener">📝 関連ブログ</a>
+          <a class="btn" href={app.links.blog} target="_blank" rel="noopener">関連ブログ</a>
         )}
       </div>
     </section>
+
+    <section class="cta">
+      <h2>💬 似たものを作りたい方へ</h2>
+      <p>この作品と同じような仕組みで、あなたの仕事や暮らしに合わせたツールを作れます。</p>
+      <a class="btn primary" href={`${base}/#consult`}>開発の相談をする</a>
+    </section>
   </article>
 </BaseLayout>
+
+<style>
+  .shot {
+    margin: 0 0 28px;
+    padding: 24px;
+    background: var(--surface-2);
+    border-radius: var(--radius);
+    display: grid;
+    place-items: center;
+  }
+  .shot img { display: block; border-radius: 12px; box-shadow: 0 10px 28px rgba(28, 31, 38, 0.14); }
+  .shot--phone img { width: min(260px, 80%); border-radius: 22px; border: 5px solid var(--ink); }
+  .cta { background: var(--good-bg); border-color: transparent; }
+  .cta p { margin: 0 0 14px; }
+</style>

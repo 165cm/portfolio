@@ -3,6 +3,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # 作品リポジトリ側の docs/portfolio/ のスクリーンショットや最終更新日を取り込むため、
+  # 毎日ビルドし直す（日本時間 3:17）
+  schedule:
+    - cron: '17 18 * * *'
   workflow_dispatch:
 
 permissions:
