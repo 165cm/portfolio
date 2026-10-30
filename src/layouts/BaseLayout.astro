@@ -1,11 +1,12 @@
 ---
 import '../styles/global.css';
 import { owner } from '../data/business';
+import { site } from '../data/site';
 interface Props {
   title: string;
   description?: string;
 }
-const { title, description = `個人開発者 ${owner.name} のポートフォリオ。現場や暮らしの困りごとを、スマホで使える小さなアプリにしています。小さなツールの開発相談も受け付けています。` } = Astro.props;
+const { title, description = `${site.name}｜個人開発者 ${owner.name} のポートフォリオ。Claude Code・Codex・Gemini などの AI と一緒に、暮らしと仕事の小さなアプリを作っています。小さなツールの開発相談も受け付けています。` } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <!doctype html>
@@ -25,12 +26,12 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <body>
     <header class="site-header">
       <div class="container">
-        <a href={`${base}/`} class="brand"><span class="brand-prompt" aria-hidden="true">&gt;_</span>{owner.name}</a>
+        <a href={`${base}/`} class="brand"><span class="brand-prompt" aria-hidden="true">&gt;_</span>{owner.name} <span class="brand-sub">Apps with AI</span></a>
         <nav>
           <a href={`${base}/#works`}>作品</a>
+          <a href={`${base}/#ai`}>AIの使い方</a>
           <a href={`${base}/#services`}>できること</a>
           <a href={`${base}/about`}>プロフィール</a>
-          <a href="https://github.com/165cm" target="_blank" rel="noopener">GitHub</a>
           <a class="nav-cta" href={`${base}/#consult`}>相談する</a>
         </nav>
       </div>
@@ -45,7 +46,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
     <footer class="site-footer">
       <div class="container">
-        <p>© {owner.name}（GitHub <a href="https://github.com/165cm" target="_blank" rel="noopener">@165cm</a>）</p>
+        <p>© {site.name} — {owner.name}（GitHub <a href="https://github.com/165cm" target="_blank" rel="noopener">@165cm</a>）</p>
         <p>事業者情報・有料サービスの販売：<a href={`${base}/business/`}>ぱぱぞんアプリ（PAPAZON APPS）</a></p>
       </div>
     </footer>

@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { featuredApps, platforms } from '../../data/apps';
 import { resolveShots } from '../../data/screenshots';
-import { owner } from '../../data/business';
+import { site } from '../../data/site';
 
 // 詳細ページはサイトに載せている作品（showcase を持つもの）だけ作る
 export function getStaticPaths() {
@@ -15,7 +15,7 @@ const shot = (await resolveShots(featuredApps))[app.slug];
 const plat = platforms[app.platform];
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<BaseLayout title={`${app.name} — ${owner.name}`} description={app.tagline}>
+<BaseLayout title={`${app.name} — ${site.name}`} description={app.tagline}>
   <article class="app-detail">
     <a class="back" href={`${base}/#works`}>← 作品一覧へ戻る</a>
 
