@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { business, owner } from '../data/business';
-import { consult } from '../data/consult';
+import { consult, career } from '../data/consult';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <BaseLayout title={`プロフィール — ${owner.name}`}>
@@ -18,13 +18,14 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       </div>
     </div>
     {owner.bio.map((t) => <p>{t}</p>)}
+    <p>個人でのアプリ開発は{career.years}。自分用も含めて、これまで{career.tools}の道具を作ってきました。</p>
 
     <h2>大事にしていること</h2>
     <ul>
       <li><strong>現場で本当に使えること。</strong>自分が毎日使う道具として作り、使いながら直しています。</li>
       <li><strong>小さく作って、早く見せること。</strong>最初から全部を作らず、動くものを触ってもらって育てます。</li>
-      <li><strong>公開して終わりにしないこと。</strong>専用アドレス（独自ドメイン）でのサイト運営や、有料版の販売・サポートまで自分で行っています。</li>
-      <li><strong>AI を道具として使いこなすこと。</strong>開発に AI を取り入れ、少人数でも品質と速さを両立させています。</li>
+      <li><strong>作って終わりにしないこと。</strong>公開したあとの運営や、有料版の販売・お問い合わせ対応まで自分で行っています。</li>
+      <li><strong>AI を上手に使うこと。</strong>開発に AI を取り入れ、ひとりでも早く・丁寧に作れるようにしています。</li>
     </ul>
 
     <h2>このサイトについて</h2>

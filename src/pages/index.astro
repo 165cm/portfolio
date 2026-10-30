@@ -3,7 +3,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import WorkCard from '../components/WorkCard.astro';
 import ConsultChat from '../components/ConsultChat.astro';
 import { featuredApps } from '../data/apps';
-import { consult, services, fits, steps } from '../data/consult';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { consult, career, services, fits, steps } from '../data/consult';
+import { fetchMergedPrCountLastYear } from '../data/activity';
 import { owner } from '../data/business';
 import { fetchRepoMeta } from '../data/repoUpdates';
 import { resolveShots } from '../data/screenshots';
@@ -23,68 +26,77 @@ const nameOf = (slug: string) => featuredApps.find((a) => a.slug === slug)?.name
 // 作品の画像（作品リポジトリの docs/portfolio/ にあれば最新のものを使う）
 const shots = await resolveShots(featuredApps);
 
-// ヒーローの「ターミナル風」の飾り。中身は実際の作品名とデリ勘のテスト件数
-type TermLine = { text: string; prompt?: boolean; cls?: string; note?: string };
-const terminalLines: TermLine[] = [
-  { text: 'whoami', prompt: true },
-  { text: `${owner.name} — 家電修理エンジニア / 個人開発者`, cls: 'o' },
-  { text: 'ls', prompt: true },
-  ...featuredApps.map((a) => ({ text: `${a.emoji} ${a.name}`, cls: 'o' })),
-  { text: 'npm test', prompt: true, note: 'デリ勘' },
-  { text: '✓ 112 passed', cls: 'ok' },
-  { text: 'npm run e2e', prompt: true },
-  { text: '✓ 14 passed', cls: 'ok' },
-];
+// ヒーローの画像。public/hero.(webp|png|jpg) を置けばそれを使い、無ければ
+// 作品のスクリーンショットをパソコンとスマホの枠に入れて見せる
+const heroFile = ['webp', 'png', 'jpg']
+  .map((ext) => `hero.${ext}`)
+  .find((f) => existsSync(join(process.cwd(), 'public', f)));
+const wideShot = featuredApps.map((a) => shots[a.slug]).find((s) => s?.kind === 'wide');
+const phoneShot = featuredApps.map((a) => shots[a.slug]).find((s) => s?.kind === 'phone');
 
-// 数字の実績。専門用語を知らない人にも伝わるよう、それぞれに説明を付ける
+// この1年の改善の回数（取り込んだプルリクエスト数）。取れなければ数字なしで見せる
+const prCount = await fetchMergedPrCountLastYear();
+
+// 数字の実績。ITに詳しくない人が読んでもわかる言葉で説明を付ける
 const proofs = [
   {
-    num: String(featuredApps.length),
-    unit: '作品',
-    title: '公開中の作品',
-    text: 'どれも今すぐ開いて触れます。下書きや練習ではなく、実際に使われているものだけを載せています。',
+    num: career.years,
+    title: '個人でのアプリ開発',
+    text: `自分用も含めて、これまで${career.tools}の道具を作ってきました。`,
   },
   {
-    num: '2',
-    unit: 'サイト',
-    title: '専用アドレスで運営',
-    text: '「aircon-hokenshitsu.com」のような自分専用のアドレス（独自ドメイン）を取り、公開から運営まで自分で行っています。',
+    num: `${featuredApps.length}本`,
+    title: '今月も開発中のアプリ',
+    text: 'ここで紹介しているアプリは、どれも今月も手を入れているものです。作って終わりにしません。',
   },
   {
-    num: '有料版',
-    unit: '',
-    title: '販売の実績',
-    text: '確定申告ツールは有料版を販売中です。お金を払って使ってもらえる品質まで仕上げています。',
+    num: career.paidUsers,
+    title: '有料版の利用者',
+    text: '確定申告のツールは、ブログ経由で有料版を個人販売し、たくさんの方に使っていただいています。',
   },
-  {
-    num: '126',
-    unit: '項目',
-    title: '自動チェック',
-    text: '直すたびに、計算や画面の動きが正しいかを機械が126項目確かめます。「直したら別の所が壊れた」を防ぐ仕組みです。',
-  },
+  prCount
+    ? {
+        num: `${prCount}回`,
+        title: 'この1年の改善',
+        text: '使いにくい所を直す、機能を足す。小さな改善を1つずつ、コツコツ積み重ねています。',
+      }
+    : {
+        num: '日々',
+        title: 'コツコツ改善',
+        text: '使いにくい所を直す、機能を足す。小さな改善を1つずつ、コツコツ積み重ねています。',
+      },
 ];
 ---
-<BaseLayout title={`${owner.name} — 現場と暮らしの小さなアプリを作る個人開発者`}>
+<BaseLayout title={`${owner.name} — 暮らしと仕事の小さなアプリを作る個人開発者`}>
   <section class="hero-band" slot="band">
     <div class="container hero">
       <div class="hero-text">
-        <p class="eyebrow">個人開発者 / 家電修理エンジニア</p>
-        <h1><span class="nw">現場の「ちょっと困った」を、</span><wbr /><span class="nw">スマホで使えるアプリに。</span></h1>
+        <p class="eyebrow">個人開発者 {owner.name}</p>
+        <h1><span class="nw">「こんなのあったらいいな」を、</span><wbr /><span class="nw">スマホで使えるアプリに。</span></h1>
         <p class="lead">
-          {owner.name}です。家電修理の現場で働きながら、仕事や暮らしの道具をアプリにしています。
-          企画から公開・販売・運営まで、ひとりで回しています。
+          家電修理の仕事のかたわら、{career.years}アプリを作ってきました。
+          仕事の面倒な作業を減らす道具から、毎日の家事をラクにするアプリまで、自分用も含めて{career.tools}になります。
         </p>
-        <p class="lead">小さなツールの開発のご相談を、副業として少しだけ受け付けています。</p>
+        <p class="lead">「こんなことできる？」という小さなご相談から、副業として少しだけお受けしています。</p>
         <div class="hero-actions">
-          <a class="btn primary" href="#consult">開発の相談をする</a>
-          <a class="btn btn--on-dark" href="#works">作品を見る</a>
+          <a class="btn primary" href="#consult">気軽に相談してみる</a>
+          <a class="btn btn--on-dark" href="#works">作ったものを見る</a>
         </div>
       </div>
-      <div class="terminal" aria-hidden="true">
-        <div class="terminal-bar"><span></span><span></span><span></span><em>~/works</em></div>
-        <pre><code>{terminalLines.map((l) => (
-          <span class="line">{l.prompt && <span class="p">$ </span>}<span class={l.cls}>{l.text}</span>{l.note && <span class="c">  # {l.note}</span>}</span>
-        ))}<span class="line"><span class="p">$ </span><span class="cursor"></span></span></code></pre>
+      <div class="hero-visual">
+        {heroFile ? (
+          <img class="hero-image" src={`${base}/${heroFile}`} alt="パソコンとスマホで動くアプリのイメージ" />
+        ) : (
+          <div class="devices" aria-hidden="true">
+            {wideShot && (
+              <div class="laptop">
+                <div class="laptop-screen"><img src={`${base}/${wideShot.src}`} alt="" /></div>
+                <div class="laptop-base"></div>
+              </div>
+            )}
+            {phoneShot && <img class="phone" src={`${base}/${phoneShot.src}`} alt="" />}
+          </div>
+        )}
       </div>
     </div>
   </section>
@@ -95,7 +107,7 @@ const proofs = [
     <ul class="proofs">
       {proofs.map((p) => (
         <li>
-          <p class="proof-num">{p.num}<small>{p.unit}</small></p>
+          <p class="proof-num">{p.num}</p>
           <h3>{p.title}</h3>
           <p>{p.text}</p>
         </li>
@@ -105,8 +117,8 @@ const proofs = [
 
   <section id="works" class="section">
     <p class="sec-label">works</p>
-    <h2>最近の作品</h2>
-    <p class="section-lead">どれも自分や身近な人の困りごとから生まれ、実際に使われている作品です。</p>
+    <h2>最近作ったもの</h2>
+    <p class="section-lead">どれも自分や家族、身近な人の「困った」から生まれ、実際に使われているアプリです。</p>
     <div class="works">
       {featuredApps.map((app, i) => (
         <WorkCard app={app} shot={shots[app.slug]} publicUrl={publicUrlOf(app.slug, app.links.demo)} reverse={i % 2 === 1} />
@@ -155,9 +167,9 @@ const proofs = [
 
   <section id="consult" class="section consult">
     <p class="sec-label">contact</p>
-    <h2>開発の相談をする</h2>
+    <h2>気軽にご相談ください</h2>
     <p class="section-lead">
-      まだ「こんなことできる？」くらいの段階で大丈夫です。質問に答えると相談メールの下書きができます。
+      「こんなことできる？」くらいの段階で大丈夫です。下の質問に答えていくと、相談のメール文が自動でできあがります。
       直接メールする場合は <a href={`mailto:${consult.email}`}>{consult.email}</a> へどうぞ。
     </p>
     <ConsultChat />
@@ -191,7 +203,7 @@ const proofs = [
     color: var(--accent-bright);
   }
   .hero h1 {
-    font-size: clamp(1.4rem, 5.6vw, 2.35rem);
+    font-size: clamp(1.3rem, 5.2vw, 2.3rem);
     line-height: 1.4;
     margin: 0 0 18px;
     color: #fff;
@@ -202,41 +214,34 @@ const proofs = [
   .btn--on-dark { color: #e6edf6; border-color: #4a5a75; }
   .btn--on-dark:hover { background: #e6edf6; color: var(--dark); }
 
-  .terminal {
-    background: var(--dark-2);
-    border: 1px solid var(--dark-line);
-    border-radius: 10px;
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+  .hero-visual { min-width: 0; }
+  .hero-image { display: block; width: 100%; border-radius: 12px; box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35); }
+  .devices { position: relative; padding: 0 0 40px; }
+  .laptop { width: 92%; }
+  .laptop-screen {
+    background: #1b2333;
+    border: 10px solid #1b2333;
+    border-bottom-width: 14px;
+    border-radius: 12px 12px 0 0;
     overflow: hidden;
-    min-width: 0;
+    aspect-ratio: 16 / 10.5;
   }
-  .terminal-bar {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--dark-line);
+  .laptop-screen img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .laptop-base {
+    height: 12px;
+    margin: 0 -6%;
+    background: linear-gradient(#c9d1dc, #8e99a8);
+    border-radius: 0 0 12px 12px;
   }
-  .terminal-bar span { width: 10px; height: 10px; border-radius: 50%; background: #3a4760; }
-  .terminal-bar em { margin-left: 8px; font-style: normal; font-family: var(--mono); font-size: 0.75rem; color: #6f7f99; }
-  .terminal pre {
-    margin: 0;
-    padding: 16px 18px 20px;
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    line-height: 1.75;
-    color: #c9d4e3;
-    white-space: pre-wrap;
-    word-break: break-word;
+  .phone {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 30%;
+    border: 5px solid #05070c;
+    border-radius: 18px;
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.45);
   }
-  .terminal .line { display: block; }
-  .terminal .p { color: var(--accent-bright); }
-  .terminal .o { color: #c9d4e3; }
-  .terminal .c { color: #6f7f99; }
-  .terminal .ok { color: var(--accent-bright); }
-  .cursor { display: inline-block; width: 0.55em; height: 1.1em; vertical-align: text-bottom; background: var(--accent-bright); animation: blink 1.1s steps(1) infinite; }
-  @keyframes blink { 50% { opacity: 0; } }
-  @media (prefers-reduced-motion: reduce) { .cursor { animation: none; } }
 
   .section { padding: 80px 0 0; }
   .section h2 { margin: 4px 0 10px; font-size: clamp(1.4rem, 3vw, 1.85rem); }
@@ -257,8 +262,7 @@ const proofs = [
     border-radius: var(--radius);
     padding: 20px;
   }
-  .proof-num { margin: 0; font-family: var(--mono); font-size: 2rem; font-weight: 600; line-height: 1.2; }
-  .proof-num small { margin-left: 4px; font-family: 'Noto Sans JP', sans-serif; font-size: 0.9rem; font-weight: 500; color: var(--ink-soft); }
+  .proof-num { margin: 0; font-size: 1.9rem; font-weight: 700; line-height: 1.25; color: var(--accent-dark); }
   .proofs h3 { margin: 6px 0 6px; font-size: 1rem; }
   .proofs li > p:last-child { margin: 0; font-size: 0.86rem; color: var(--ink-soft); line-height: 1.7; }
 
