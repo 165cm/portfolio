@@ -1,6 +1,6 @@
 # 165cm Portfolio ![Tier](https://img.shields.io/badge/tier-utility-orange)
 
-> 165cm（ぱぱぞん）の作品と、小さな開発のご相談窓口をまとめたポートフォリオサイト
+> ぱぱぞん（GitHub: @165cm）の作品と、小さな開発のご相談窓口をまとめたポートフォリオサイト
 
 <!-- docs/screenshots/ にスクリーンショットを追加してください -->
 

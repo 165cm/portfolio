@@ -4,6 +4,7 @@
 // 応答は決まった流れの自動応答で、入力内容はどこにも送らない。
 import { featuredApps } from '../data/apps';
 import { consult } from '../data/consult';
+import { owner } from '../data/business';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 // 種類ごとに紹介する実績（slug → 名前・詳細ページ）
@@ -11,9 +12,9 @@ const works = Object.fromEntries(
   featuredApps.map((a) => [a.slug, { name: a.name, url: `${base}/apps/${a.slug}` }])
 );
 ---
-<div class="chat" data-email={consult.email} data-works={JSON.stringify(works)}>
+<div class="chat" data-email={consult.email} data-name={owner.name} data-works={JSON.stringify(works)}>
   <div class="chat-head">
-    <span class="chat-avatar" aria-hidden="true">165</span>
+    <span class="chat-avatar" aria-hidden="true">&gt;_</span>
     <div>
       <p class="chat-title">開発相談チャット</p>
       <p class="chat-sub">質問に答えると、相談メールの下書きができます</p>
@@ -39,7 +40,7 @@ const works = Object.fromEntries(
   type State = Record<'kind' | 'problem' | 'users' | 'timing' | 'budget' | 'name', string>;
   type Step = {
     key: keyof State;
-    ask: (s: State) => string;
+    ask: (s: State, ownerName: string) => string;
     options?: string[];
     placeholder?: string;
     multiline?: boolean;
@@ -59,7 +60,7 @@ const works = Object.fromEntries(
   const stepsDef: Step[] = [
     {
       key: 'kind',
-      ask: () => 'こんにちは、165cm です。どんなものを作りたいですか？近いものを選んでください。',
+      ask: (_s, ownerName) => `こんにちは、${ownerName}です。どんなものを作りたいですか？近いものを選んでください。`,
       options: Object.keys(kindReplies),
     },
     {
@@ -93,6 +94,7 @@ const works = Object.fromEntries(
 
   function setupChat(root: HTMLElement) {
     const email = root.dataset.email ?? '';
+    const ownerName = root.dataset.name ?? '';
     const works = JSON.parse(root.dataset.works ?? '{}') as Record<string, Work>;
     const log = root.querySelector<HTMLElement>('.chat-log')!;
     const input = root.querySelector<HTMLElement>('.chat-input')!;
@@ -144,7 +146,7 @@ const works = Object.fromEntries(
         return;
       }
       later(() => {
-        botText(step.ask(state));
+        botText(step.ask(state, ownerName));
         renderInput(step);
       }, 350);
     }
@@ -204,7 +206,7 @@ const works = Object.fromEntries(
 
     function buildMail() {
       const lines = [
-        '165cm さん',
+        `${ownerName} さん`,
         '',
         'ポートフォリオサイトの相談チャットから、開発のご相談です。',
         '',
@@ -291,32 +293,35 @@ const works = Object.fromEntries(
     align-items: center;
     gap: 12px;
     padding: 14px 18px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface-2);
+    border-bottom: 1px solid var(--dark-line);
+    background: var(--dark);
+    color: #e6edf6;
   }
   .chat-avatar {
     flex: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
     display: grid;
     place-items: center;
-    background: var(--ink);
-    color: #fff;
-    font-weight: 700;
+    background: var(--dark-2);
+    border: 1px solid var(--dark-line);
+    color: var(--accent-bright);
+    font-family: var(--mono);
+    font-weight: 600;
     font-size: 0.8rem;
   }
   .chat-title { margin: 0; font-weight: 700; line-height: 1.4; }
-  .chat-sub { margin: 0; font-size: 0.8rem; color: var(--ink-soft); line-height: 1.4; }
+  .chat-sub { margin: 0; font-size: 0.8rem; color: #a9b6c8; line-height: 1.4; }
   .chat-reset {
     margin-left: auto;
     font: inherit;
     font-size: 0.8rem;
     background: none;
-    border: 1px solid var(--border);
-    border-radius: 999px;
+    border: 1px solid #4a5a75;
+    border-radius: 6px;
     padding: 4px 12px;
-    color: var(--ink-soft);
+    color: #c9d4e3;
     cursor: pointer;
     white-space: nowrap;
   }
@@ -333,7 +338,7 @@ const works = Object.fromEntries(
   .chat-log :global(.msg) {
     max-width: 85%;
     padding: 10px 14px;
-    border-radius: 16px;
+    border-radius: 12px;
     font-size: 0.95rem;
     line-height: 1.65;
     white-space: pre-wrap;
@@ -346,15 +351,15 @@ const works = Object.fromEntries(
   }
   .chat-log :global(.msg--me) {
     align-self: flex-end;
-    background: var(--ink);
+    background: var(--dark);
     color: #fff;
     border-bottom-right-radius: 4px;
   }
   .chat-log :global(.msg--summary) { max-width: 100%; width: 100%; background: #fff; border: 1px dashed var(--border-strong); }
   .chat-log :global(.msg--summary pre) {
     margin: 0;
-    font: inherit;
-    font-size: 0.88rem;
+    font-family: var(--mono), 'Noto Sans JP', sans-serif;
+    font-size: 0.82rem;
     white-space: pre-wrap;
   }
   .chat-input { padding: 0 18px 18px; }
@@ -362,8 +367,8 @@ const works = Object.fromEntries(
   .chat-input :global(.chip) {
     font: inherit;
     font-size: 0.92rem;
-    padding: 8px 14px;
-    border-radius: 999px;
+    padding: 7px 14px;
+    border-radius: 8px;
     border: 1px solid var(--accent);
     background: #fff;
     color: var(--accent);
@@ -378,14 +383,14 @@ const works = Object.fromEntries(
     font-size: 16px;
     padding: 10px 12px;
     border: 1px solid var(--border-strong);
-    border-radius: 12px;
+    border-radius: 8px;
     resize: vertical;
   }
   .chat-input :global(.send) {
     font: inherit;
     font-size: 0.92rem;
     padding: 10px 16px;
-    border-radius: 12px;
+    border-radius: 8px;
     border: none;
     background: var(--accent);
     color: #fff;
