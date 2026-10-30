@@ -68,13 +68,13 @@ const proofs = [
 ];
 ---
 <BaseLayout title={`${owner.name} — 暮らしと仕事の小さなアプリを作る個人開発者`}>
-  <section class="hero-band" slot="band">
+  <section class:list={['hero-band', { 'hero-band--image': heroFile }]} slot="band">
     <div class="container hero">
       <div class="hero-text">
         <p class="eyebrow">個人開発者 {owner.name}</p>
         <h1><span class="nw">「こんなのあったらいいな」を、</span><wbr /><span class="nw">スマホで使えるアプリに。</span></h1>
         <p class="lead">
-          家電修理の仕事のかたわら、{career.years}アプリを作ってきました。
+          本業のかたわら、{career.years}アプリを作ってきました。
           仕事の面倒な作業を減らす道具から、毎日の家事をラクにするアプリまで、自分用も含めて{career.tools}になります。
         </p>
         <p class="lead">「こんなことできる？」という小さなご相談から、副業として少しだけお受けしています。</p>
@@ -83,22 +83,19 @@ const proofs = [
           <a class="btn btn--on-dark" href="#works">作ったものを見る</a>
         </div>
       </div>
-      <div class="hero-visual">
-        {heroFile ? (
-          <img class="hero-image" src={`${base}/${heroFile}`} alt="パソコンとスマホで動くアプリのイメージ" />
-        ) : (
-          <div class="devices" aria-hidden="true">
-            {wideShot && (
-              <div class="laptop">
-                <div class="laptop-screen"><img src={`${base}/${wideShot.src}`} alt="" /></div>
-                <div class="laptop-base"></div>
-              </div>
-            )}
-            {phoneShot && <img class="phone" src={`${base}/${phoneShot.src}`} alt="" />}
-          </div>
-        )}
-      </div>
+      {!heroFile && (
+        <div class="devices" aria-hidden="true">
+          {wideShot && (
+            <div class="laptop">
+              <div class="laptop-screen"><img src={`${base}/${wideShot.src}`} alt="" /></div>
+              <div class="laptop-base"></div>
+            </div>
+          )}
+          {phoneShot && <img class="phone" src={`${base}/${phoneShot.src}`} alt="" />}
+        </div>
+      )}
     </div>
+    {heroFile && <img class="hero-bg" src={`${base}/${heroFile}`} alt="机の上のパソコンとスマホ。画面にはグラフやチェックの付いたアプリが映っている" />}
   </section>
 
   <section class="section proofs-section">
@@ -214,8 +211,25 @@ const proofs = [
   .btn--on-dark { color: #e6edf6; border-color: #4a5a75; }
   .btn--on-dark:hover { background: #e6edf6; color: var(--dark); }
 
-  .hero-visual { min-width: 0; }
-  .hero-image { display: block; width: 100%; border-radius: 12px; box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35); }
+  /* ヒーロー画像は左側が無地なので、帯の右側に敷いて左に文字を置く */
+  .hero-band { position: relative; overflow: hidden; }
+  .hero-band--image { background: #0e182b; }
+  .hero-band--image .hero { grid-template-columns: minmax(0, 600px); position: relative; z-index: 1; }
+  .hero-band--image .lead { color: #c3cede; }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: right center;
+  }
+  .hero-band--image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, #0e182b 38%, rgba(14, 24, 43, 0.85) 52%, rgba(14, 24, 43, 0.25) 66%, transparent 76%);
+  }
   .devices { position: relative; padding: 0 0 40px; }
   .laptop { width: 92%; }
   .laptop-screen {
@@ -309,8 +323,16 @@ const proofs = [
 
   .consult .section-lead a { word-break: break-all; }
 
+  /* 画像に文字が重なる幅では、文字の下に画像を並べる */
+  @media (max-width: 1180px) {
+    .hero-band--image .hero { grid-template-columns: 1fr; padding-bottom: 28px; }
+    .hero-band--image::after { display: none; }
+    .hero-bg { position: static; display: block; height: auto; max-height: 440px; aspect-ratio: 16 / 7; }
+  }
   @media (max-width: 860px) {
+    .hero-bg { aspect-ratio: 16 / 9; }
     .hero { grid-template-columns: 1fr; padding-top: 48px; padding-bottom: 48px; }
+
     .proofs { grid-template-columns: 1fr 1fr; }
     .services { grid-template-columns: 1fr 1fr; }
     .flow { grid-template-columns: 1fr 1fr; }
