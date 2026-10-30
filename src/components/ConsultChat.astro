@@ -100,6 +100,11 @@ const works = Object.fromEntries(
 
     let state: State;
     let index: number;
+    // 遅れて出す発言のタイマー。「はじめから」で前の会話の分を取り消す
+    let timers: number[] = [];
+    const later = (fn: () => void, ms: number) => {
+      timers.push(window.setTimeout(fn, ms));
+    };
 
     const scroll = () => {
       log.scrollTop = log.scrollHeight;
@@ -138,7 +143,7 @@ const works = Object.fromEntries(
         finish();
         return;
       }
-      window.setTimeout(() => {
+      later(() => {
         botText(step.ask(state));
         renderInput(step);
       }, 350);
@@ -151,10 +156,10 @@ const works = Object.fromEntries(
       input.replaceChildren();
       if (step.key === 'kind') {
         const r = kindReplies[value];
-        window.setTimeout(() => botWithWork(r.text, r.slug), 300);
+        later(() => botWithWork(r.text, r.slug), 300);
       }
       index += 1;
-      window.setTimeout(ask, step.key === 'kind' ? 500 : 0);
+      later(ask, step.key === 'kind' ? 500 : 0);
     }
 
     function renderInput(step: Step) {
@@ -219,7 +224,7 @@ const works = Object.fromEntries(
 
     function finish() {
       const { subject, body } = buildMail();
-      window.setTimeout(() => {
+      later(() => {
         botText('ありがとうございます！相談内容をメールの下書きにまとめました。内容を確認して、送ってください。');
         say('bot', (el) => {
           el.classList.add('msg--summary');
@@ -255,6 +260,8 @@ const works = Object.fromEntries(
     }
 
     function start() {
+      timers.forEach((t) => window.clearTimeout(t));
+      timers = [];
       state = { kind: '', problem: '', users: '', timing: '', budget: '', name: '' };
       index = 0;
       log.replaceChildren();
