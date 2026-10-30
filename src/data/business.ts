@@ -27,7 +27,7 @@ export interface Service {
 export const business = {
   name: 'ぱぱぞんアプリ',
   nameEn: 'PAPAZON APPS',
-  description: '資格学習などのWebアプリの企画・開発・販売',
+  description: '暮らしや仕事に役立つWebアプリ（資格学習など）の企画・開発・販売',
   email: 'papazon.service.desk@outlook.jp',
   established: '2026年',
   updated: '2026年10月29日',
