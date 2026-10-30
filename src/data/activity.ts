@@ -22,10 +22,17 @@ export function fetchMergedPrCountLastYear(user = '165cm'): Promise<number | nul
         headers,
         signal: AbortSignal.timeout(10000),
       });
-      if (!res.ok) return null;
+      if (!res.ok) {
+        console.warn(`[activity] プルリクエスト数を取得できませんでした（HTTP ${res.status}）`);
+        return null;
+      }
       const data = (await res.json()) as { total_count?: number };
-      return typeof data.total_count === 'number' ? data.total_count : null;
-    } catch {
+      const count = typeof data.total_count === 'number' ? data.total_count : null;
+      // デプロイのログで取得結果を確かめられるように出しておく
+      console.log(`[activity] この1年に取り込まれたプルリクエスト数: ${count ?? '不明'}`);
+      return count;
+    } catch (e) {
+      console.warn(`[activity] プルリクエスト数を取得できませんでした（${(e as Error).message}）`);
       return null;
     }
   })();
