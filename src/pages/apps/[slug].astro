@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { featuredApps, platforms } from '../../data/apps';
+import { resolveShots } from '../../data/screenshots';
 
 // 詳細ページはサイトに載せている作品（showcase を持つもの）だけ作る
 export function getStaticPaths() {
@@ -9,6 +10,7 @@ export function getStaticPaths() {
 
 const { app } = Astro.props;
 const sc = app.showcase;
+const shot = (await resolveShots(featuredApps))[app.slug];
 const plat = platforms[app.platform];
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
@@ -25,9 +27,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     </div>
     <p class="tagline">{app.tagline}</p>
 
-    {sc.image && (
-      <figure class:list={['shot', `shot--${sc.imageKind ?? 'wide'}`]}>
-        <img src={`${base}/${sc.image}`} alt={sc.imageAlt ?? app.name} />
+    {shot && (
+      <figure class:list={['shot', `shot--${shot.kind}`]}>
+        <img src={`${base}/${shot.src}`} alt={shot.alt} />
       </figure>
     )}
 

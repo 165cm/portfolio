@@ -62,6 +62,22 @@ dist/
 - 新規 T1 以上アプリを公開する際は、**同じ作業の中で apps.ts への追加 PR を作る**
 - Topics / About / apps.ts の **3点が同じ顔をしている** ことを定期的にチェック
 
+### portfolio 用スクリーンショット
+
+portfolio に載っている作品は、**作品リポジトリ側にスクリーンショットを置く**。
+portfolio は毎日自動でビルドし直し、ここにある画像を取り込むため、portfolio 側の更新は不要。
+
+| 置き場所（既定ブランチ） | 中身 |
+|---|---|
+| `docs/portfolio/phone.webp`（`.png` / `.jpg` も可） | スマホ画面の縦長スクリーンショット（推奨：幅390px前後の実機サイズ） |
+| `docs/portfolio/wide.webp`（`.png` / `.jpg` も可） | PC画面や横長バナー（推奨：横1200px前後） |
+
+- どちらか1枚あればよい。両方ある場合は `phone` を使う
+- 1枚 **3MB 以下**。個人情報・本物の顧客データ・APIキーが写っていないこと
+- 画面を大きく変えたら、同じ作業の中で差し替える（ファイル名は変えない）
+- 反映は翌日の自動ビルド後。急ぐ時は portfolio の Actions で「Deploy to GitHub Pages」を手動実行
+- 置かれていない場合は portfolio の `public/works/` の画像（無ければ数値の図）を表示する
+
 ## 8. リリースタグ（T3 のみ）
 
 - 形式: SemVer `vMAJOR.MINOR.PATCH`（例: `v0.3.1`）
@@ -88,3 +104,4 @@ dist/
 - [ ] `.github/AGENTS.md` を置いた（T1 以上）
 - [ ] `DEVELOPER.md` を置いた（T2 以上）
 - [ ] `portfolio/src/data/apps.ts` に登録した（T1 以上）
+- [ ] portfolio に載せる作品なら `docs/portfolio/phone.webp`（または `wide.webp`）を置いた

@@ -5,6 +5,7 @@ import ConsultChat from '../components/ConsultChat.astro';
 import { featuredApps } from '../data/apps';
 import { consult, services, fits, steps } from '../data/consult';
 import { fetchRepoMeta } from '../data/repoUpdates';
+import { resolveShots } from '../data/screenshots';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -18,7 +19,9 @@ const publicUrlOf = (slug: string, demo?: string) => {
 };
 
 const nameOf = (slug: string) => featuredApps.find((a) => a.slug === slug)?.name;
-const heroShots = featuredApps.filter((a) => a.showcase.imageKind === 'phone').slice(0, 2);
+// 作品の画像（作品リポジトリの docs/portfolio/ にあれば最新のものを使う）
+const shots = await resolveShots(featuredApps);
+const heroShots = featuredApps.map((a) => shots[a.slug]).filter((s) => s?.kind === 'phone').slice(0, 2);
 ---
 <BaseLayout title="165cm — 現場と暮らしの小さなアプリを作る個人開発者">
   <section class="hero">
@@ -36,7 +39,7 @@ const heroShots = featuredApps.filter((a) => a.showcase.imageKind === 'phone').s
       </div>
     </div>
     <div class="hero-shots" aria-hidden="true">
-      {heroShots.map((a) => <img src={`${base}/${a.showcase.image}`} alt="" />)}
+      {heroShots.map((s) => <img src={`${base}/${s.src}`} alt="" />)}
     </div>
   </section>
 
@@ -53,7 +56,7 @@ const heroShots = featuredApps.filter((a) => a.showcase.imageKind === 'phone').s
     <p class="section-lead">どれも自分や身近な人の困りごとから生まれ、実際に使われている作品です。</p>
     <div class="works">
       {featuredApps.map((app, i) => (
-        <WorkCard app={app} publicUrl={publicUrlOf(app.slug, app.links.demo)} reverse={i % 2 === 1} />
+        <WorkCard app={app} shot={shots[app.slug]} publicUrl={publicUrlOf(app.slug, app.links.demo)} reverse={i % 2 === 1} />
       ))}
     </div>
   </section>

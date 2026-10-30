@@ -8,7 +8,7 @@
 |---|---|
 | 言語 / フレームワーク | TypeScript / Astro 4 |
 | データ | `src/data/apps.ts` / `consult.ts` / `business.ts`（静的データ） |
-| 外部API | なし |
+| 外部API | GitHub（ビルド時のみ：リポジトリ情報と作品のスクリーンショット） |
 | デプロイ | GitHub Pages（GitHub Actions） |
 
 ## セットアップ
@@ -52,7 +52,10 @@ docs/
 `showcase` の無い作品はデータとして登録済みのまま非表示になります。載せ直す時は `showcase` を足します。
 
 - `order`: 表示順 / `proof`: 実績のひとこと / `points`: 見どころ / `skills`: 作れること
-- `image`: `public/works/` に置いたスクリーンショット（`imageKind` で縦長 `phone` / 横長 `wide`）
+- `image`: `public/works/` に置いたスクリーンショット（`imageKind` で縦長 `phone` / 横長 `wide`）。
+  作品リポジトリに `docs/portfolio/phone|wide.(webp|png|jpg)` があれば、ビルド時にそちらを優先して取り込む
+  （`src/data/screenshots.ts` → `src/pages/shots/[file].ts` が `/shots/<slug>.<拡張子>` として書き出す）。
+  ルールは [ops.md](./docs/standards/ops.md)「portfolio 用スクリーンショット」
 - 画像が無い作品は `figures`（数値）を図として表示する
 
 選定方針（2026-10）：直近1か月に更新した公開リポジトリから、趣味色の強いものを除いた精鋭のみを載せる。
@@ -77,7 +80,7 @@ docs/
 ## デプロイ手順
 
 - ホスティング: GitHub Pages
-- トリガー: `main` への push で自動デプロイ（`.github/workflows/deploy.yml`）
+- トリガー: `main` への push と、毎日 3:17（日本時間）の定期ビルド（`.github/workflows/deploy.yml`）。定期ビルドで作品側のスクリーンショット・最終更新日を取り込む
 - 公開URL: https://165cm.github.io/portfolio/
 - **設定**: リポジトリ Settings → Pages → Source = **GitHub Actions**
 

@@ -3,21 +3,23 @@
 // 見どころ・作れること・リンクを並べる。
 import type { App, Showcase } from '../data/apps';
 import { platforms } from '../data/apps';
+import type { Shot } from '../data/screenshots';
 interface Props {
   app: App & { showcase: Showcase };
+  shot?: Shot; // 表示する画像（無ければ showcase.figures を図として出す）
   publicUrl?: string;
   reverse?: boolean;
 }
-const { app, publicUrl, reverse = false } = Astro.props;
+const { app, shot, publicUrl, reverse = false } = Astro.props;
 const sc = app.showcase;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const href = `${base}/apps/${app.slug}`;
 const liveUrl = publicUrl ?? app.links.demo;
 ---
 <article class:list={['work', { 'work--reverse': reverse }]}>
-  <div class:list={['work-visual', `work-visual--${sc.image ? sc.imageKind ?? 'wide' : 'figures'}`]}>
-    {sc.image ? (
-      <img src={`${base}/${sc.image}`} alt={sc.imageAlt ?? app.name} loading="lazy" />
+  <div class:list={['work-visual', `work-visual--${shot ? shot.kind : 'figures'}`]}>
+    {shot ? (
+      <img src={`${base}/${shot.src}`} alt={shot.alt} loading="lazy" />
     ) : (
       <div class="figures">
         <dl>
