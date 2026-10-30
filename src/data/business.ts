@@ -16,9 +16,9 @@ export interface Service {
   summary: string;
   features: string[];
   url: string;
-  status: string; // いまの販売状況（例：販売開始準備中）
+  status: string; // いまの販売状況（例：近日販売開始）
   statusNote: string; // いまの状態の説明
-  free: string; // 販売開始後に無料で使える範囲
+  free: string; // 無料で使える範囲
   paid: string; // 有料プランで使える範囲
   screenshots: { src: string; alt: string }[]; // public/ からのパス
   plans: Plan[];
@@ -63,9 +63,9 @@ export const services: Service[] = [
       '配線図の高精細ビューア（ピンチで拡大）',
       '要点チートシート16種・オリジナルの解説',
     ],
-    url: 'https://165cm.github.io/construction2nd/lp/',
-    status: '販売開始準備中',
-    statusNote: '有料プランは販売開始に向けて準備中です。販売開始までは、全5回分・250問を無料で公開しています（購入の受付はまだ行っていません）。',
+    url: 'https://construction2nd.web.app/lp/',
+    status: '近日販売開始',
+    statusNote: '有料プランは近日販売開始予定です（購入の受付はまだ行っていません）。最新1回分（50問）は、いまもログインなしで無料でお使いいただけます。',
     free: '最新1回分（50問）は、ログインなしで無料で使えます。',
     paid: '現収録の5回分・250問の問題・解説・復習・模擬試験が使えます（Googleアカウントでのログインが必要）。',
     screenshots: [

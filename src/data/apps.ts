@@ -171,14 +171,14 @@ export const apps: App[] = [
       '通勤・休憩中にスマホで過去問を解きたいとき',
       '配線図の小さな文字をスマホで拡大して確認したいとき',
     ],
-    motivation: 'エアコン修理の繁忙期に第二種電気工事士の受験を決め、限られた時間で勉強するために自分用に作りました。これで学科試験に合格したので、同じように忙しい人向けに整えて公開しています。いまは全5回分を無料で公開しており、有料プラン（販売：ぱぱぞんアプリ）は販売開始に向けて準備中です。',
-    tech: ['React', 'Vite', 'Tailwind CSS', 'PWA', 'GitHub Pages'],
+    motivation: 'エアコン修理の繁忙期に第二種電気工事士の受験を決め、限られた時間で勉強するために自分用に作りました。これで学科試験に合格したので、同じように忙しい人向けに整えて公開しています。最新1回分は無料で、全5回分を使える有料プラン（販売：ぱぱぞんアプリ）は近日販売開始予定です。',
+    tech: ['React', 'Vite', 'Tailwind CSS', 'PWA', 'Firebase', 'Stripe'],
     showcase: {
       order: 1,
       image: 'works/construction2nd.webp',
       imageKind: 'phone',
       imageAlt: '過去問サクサク道場の問題演習画面',
-      skills: ['スマホ向けの学習アプリ', 'ホーム画面に追加して使える', '続けたくなるレベル・称号', '有料プランの設計'],
+      skills: ['スマホ向けの学習アプリ', 'ホーム画面に追加して使える', '苦手を自動で出し直す復習', '有料プランの設計'],
       points: [
         '過去問250問を1問ずつ解いて、すぐに正解がわかる。間違えた問題は自動で「復習リスト」へ',
         '本番と同じ時間・問題数で挑戦できる模擬試験。細かい図面も指で拡大して見られる',
@@ -187,7 +187,7 @@ export const apps: App[] = [
       proof: '作った本人がこのアプリで合格',
     },
     links: {
-      demo: 'https://165cm.github.io/construction2nd/lp/',
+      demo: 'https://construction2nd.web.app/lp/',
       repo: 'https://github.com/165cm/construction2nd',
     },
   },

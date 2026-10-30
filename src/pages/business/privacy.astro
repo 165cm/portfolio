@@ -7,7 +7,7 @@ import { business } from '../../data/business';
     <h1>プライバシーポリシー</h1>
     <p class="lead">
       {business.name}（以下「当方」）は、「第二種電気工事士 過去問サクサク道場」（以下「本サービス」）で取り扱う個人情報について、次のとおり定めます。
-      いまの無料版と、販売開始後の有料版（Googleログイン・クラウド保存・決済）で取り扱う情報が異なるため、分けて記載しています。
+      ログインせずに使う場合と、Googleログイン・クラウド保存・有料プランを使う場合で取り扱う情報が異なるため、分けて記載しています。
     </p>
 
     <section>
@@ -17,7 +17,7 @@ import { business } from '../../data/business';
     </section>
 
     <section>
-      <h2>2. いまの無料版（ログインなし）</h2>
+      <h2>2. ログインせずに使う場合</h2>
       <ul>
         <li>学習記録・設定はお使いの端末のブラウザに保存され、当方のサーバーには送信されません。ブラウザのデータを削除すると、記録が失われる場合があります。</li>
         <li>問題の誤りを報告する「異議あり」機能を使った場合のみ、下記「5. 外部サービス」のとおり報告内容を送信します。</li>
@@ -25,7 +25,7 @@ import { business } from '../../data/business';
     </section>
 
     <section>
-      <h2>3. 販売開始後の有料版で取り扱う情報と目的</h2>
+      <h2>3. Googleログイン・クラウド保存・有料プランを使う場合に取り扱う情報と目的</h2>
       <dl class="info-list">
         <div><dt>Googleログインに伴うUID・メールアドレス等の認証情報</dt><dd>本人の識別、ログイン、利用権・クラウド記録の照合</dd></div>
         <div><dt>利用者が保存した学習記録・設定・模試結果と保存日時</dt><dd>記録の保存、端末間での復元、更新の競合の防止</dd></div>
@@ -39,7 +39,7 @@ import { business } from '../../data/business';
     </section>
 
     <section>
-      <h2>4. 無料版・有料版に共通する情報</h2>
+      <h2>4. どちらの場合にも共通する情報</h2>
       <dl class="info-list">
         <div><dt>お問い合わせの送信元・本文・添付・対応履歴</dt><dd>お問い合わせへの回答、障害や請求内容の確認</dd></div>
         <div><dt>「異議あり」報告の年度・問題番号・分類・本文、対象の問題文・選択肢・正解・図の情報、ロボット確認用トークン、検証時のIPアドレス</dt><dd>報告対象の特定、教材の修正判断、ロボット対策（IPアドレスはTurnstileの検証に使用）</dd></div>
@@ -49,8 +49,8 @@ import { business } from '../../data/business';
     <section>
       <h2>5. 外部サービス</h2>
       <dl class="info-list">
-        <div><dt>Google／Firebase／Google Cloud（有料版）</dt><dd>認証、ホスティング、学習記録・利用権の保存、教材配信、障害ログ・監視</dd></div>
-        <div><dt>Stripe（有料版）</dt><dd>支払情報の入力、決済、契約管理、支払い・返金の通知。カード情報はStripeの画面に入力し、当方がカード番号を受け取ったり保存したりすることはありません</dd></div>
+        <div><dt>Google／Firebase／Google Cloud</dt><dd>認証、ホスティング、学習記録・利用権の保存、教材配信、障害ログ・監視</dd></div>
+        <div><dt>Stripe（有料プラン）</dt><dd>支払情報の入力、決済、契約管理、支払い・返金の通知。カード情報はStripeの画面に入力し、当方がカード番号を受け取ったり保存したりすることはありません</dd></div>
         <div><dt>Microsoft Outlook.com</dt><dd>お問い合わせメールの受信・返信・対応履歴の管理</dd></div>
         <div><dt>Cloudflare／Turnstile</dt><dd>「異議あり」報告の受付とロボット対策（IPアドレスをTurnstileの検証に送信）</dd></div>
         <div><dt>GitHub</dt><dd>「異議あり」報告の内容（年度・番号・分類・本文・問題文・選択肢・正解）を管理用のIssueに登録</dd></div>
