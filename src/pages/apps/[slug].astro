@@ -73,7 +73,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         {app.links.demo && (
           <a class="btn primary" href={app.links.demo} target="_blank" rel="noopener">{plat.linkLabel} ↗</a>
         )}
-        <a class="btn" href={app.links.repo} target="_blank" rel="noopener">コードを見る（GitHub）</a>
+        {!app.links.repoPrivate && (
+          <a class="btn" href={app.links.repo} target="_blank" rel="noopener">コードを見る（GitHub）</a>
+        )}
         {app.links.blog && (
           <a class="btn" href={app.links.blog} target="_blank" rel="noopener">関連ブログ</a>
         )}

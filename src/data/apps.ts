@@ -85,7 +85,9 @@ export type App = {
   motivation: string;
   howTo?: string;
   tech: string[];
-  links: { demo?: string; repo: string; blog?: string };
+  // repoPrivate: 作品リポジトリが非公開のとき true。「コードを見る」を出さず、スクリーンショットは
+  // 作品リポジトリから取得できないため public/works/ の画像を使う（画面を変えたら手で差し替える）。
+  links: { demo?: string; repo: string; blog?: string; repoPrivate?: boolean };
   // トップページに「実績」として載せる作品だけが持つ情報。
   // これが無い作品はサイト上では非表示（データは残しておき、載せ直す時に showcase を足す）。
   showcase?: Showcase;
@@ -189,6 +191,7 @@ export const apps: App[] = [
     links: {
       demo: 'https://construction2nd.web.app/lp/',
       repo: 'https://github.com/165cm/construction2nd',
+      repoPrivate: true,
     },
   },
   {
