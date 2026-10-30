@@ -1,4 +1,4 @@
-# 165cm の作りもの — Developer Guide
+# 165cm Portfolio — Developer Guide
 
 > ユーザー向け説明は [README.md](./README.md) を参照。
 
@@ -7,7 +7,7 @@
 | レイヤ | 採用技術 |
 |---|---|
 | 言語 / フレームワーク | TypeScript / Astro 4 |
-| データ | `src/data/apps.ts`（静的データ） |
+| データ | `src/data/apps.ts` / `consult.ts` / `business.ts`（静的データ） |
 | 外部API | なし |
 | デプロイ | GitHub Pages（GitHub Actions） |
 
@@ -33,9 +33,9 @@ npm run dev      # 開発サーバ (http://localhost:4321/portfolio)
 ```
 src/
   ├ pages/        ルーティング（index.astro / about.astro / apps/[slug].astro / business/）
-  ├ components/   UIコンポーネント（AppCard / CategorySection）
+  ├ components/   UIコンポーネント（WorkCard — 実績1件 / ConsultChat — 開発相談チャット）
   ├ layouts/      共通レイアウト（BaseLayout / BusinessLayout）
-  ├ data/         apps.ts — 全アプリ情報の単一ソース / business.ts — 事業者・有料サービス・価格
+  ├ data/         apps.ts — 全アプリ情報の単一ソース / consult.ts — 開発相談の窓口・できること・進め方 / business.ts — 事業者・有料サービス・価格
   └ styles/       global.css
 docs/
   └ standards/    全リポ共通の統一運用マニュアル
@@ -45,8 +45,23 @@ docs/
 
 ## アプリ情報の追加・編集
 
-`src/data/apps.ts` を編集するだけで、トップページのカードと詳細ページが両方更新されます。
+`src/data/apps.ts` を編集するだけで、トップページの実績と詳細ページが両方更新されます。
 新規アプリ追加時は `App` 型に従ってオブジェクトを追加してください。
+
+**サイトに表示されるのは `showcase` を持つ作品だけ**です（トップの実績・詳細ページとも）。
+`showcase` の無い作品はデータとして登録済みのまま非表示になります。載せ直す時は `showcase` を足します。
+
+- `order`: 表示順 / `proof`: 実績のひとこと / `points`: 見どころ / `skills`: 作れること
+- `image`: `public/works/` に置いたスクリーンショット（`imageKind` で縦長 `phone` / 横長 `wide`）
+- 画像が無い作品は `figures`（数値）を図として表示する
+
+選定方針（2026-10）：直近1か月に更新した公開リポジトリから、趣味色の強いものを除いた精鋭のみを載せる。
+
+## 開発相談チャット
+
+`src/components/ConsultChat.astro`。決まった質問に答えてもらい、最後に相談内容をまとめたメールの下書き（`mailto:`）を作る自動応答。
+静的サイトでサーバーを持たないため、入力内容はどこにも送信しない。宛先・返信目安は `src/data/consult.ts`（宛先は事業者ページと同じ `business.email`）。
+質問や選択肢を変える時は、コンポーネント内の `stepsDef` と `kindReplies` を編集する。
 
 ## 事業者ページ（ぱぱぞんアプリ）
 

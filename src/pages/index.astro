@@ -1,184 +1,237 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import GroupSection from '../components/GroupSection.astro';
-import { apps, appsByCategory, appsByPlatform, categories, platforms } from '../data/apps';
-import type { App } from '../data/apps';
+import WorkCard from '../components/WorkCard.astro';
+import ConsultChat from '../components/ConsultChat.astro';
+import { featuredApps } from '../data/apps';
+import { consult, services, fits, steps } from '../data/consult';
 import { fetchRepoMeta } from '../data/repoUpdates';
 
-const cats = Object.keys(categories) as (keyof typeof categories)[];
-const plats = Object.keys(platforms) as (keyof typeof platforms)[];
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-// ビルド時にリポジトリのメタ情報（最終更新日 / About の Website）を取得する。
-const repoMeta = await fetchRepoMeta(apps);
-
-// 「最近の更新順」: リポジトリの pushed_at。取得不可なら date にフォールバック。
-const lastUpdated = (a: App) => repoMeta[a.slug]?.pushedAt ?? a.date;
-// 公開中のものへのリンク: GitHub About の Website。無ければ links.demo にフォールバック。
-// ただし Website がこのポートフォリオ自身を指している場合（外部に公開ページを
-// 持たない作品で、About にポートフォリオの詳細ページを入れている場合）は、
-// 「詳しく見る」と同じ行き先になってしまうため採用しない。
+// ビルド時にリポジトリの About の Website を取得し、公開ページへのリンクに使う。
+// 取得できない場合や、Website がこのポートフォリオ自身を指す場合は links.demo を使う。
+const repoMeta = await fetchRepoMeta(featuredApps);
 const isSelfUrl = (url: string) => url.includes('165cm.github.io/portfolio');
-const publicUrlOf = (a: App) => {
-  const homepage = repoMeta[a.slug]?.homepage;
-  return homepage && !isSelfUrl(homepage) ? homepage : a.links.demo;
+const publicUrlOf = (slug: string, demo?: string) => {
+  const homepage = repoMeta[slug]?.homepage;
+  return homepage && !isSelfUrl(homepage) ? homepage : demo;
 };
-const publicUrls = Object.fromEntries(
-  apps.map((a) => [a.slug, publicUrlOf(a)]).filter(([, url]) => url)
-) as Record<string, string>;
 
-const sortedByDate = [...apps].sort((a, b) => {
-  const da = lastUpdated(a);
-  const db = lastUpdated(b);
-  return da < db ? 1 : da > db ? -1 : a.name.localeCompare(b.name);
-});
-// 年ごとにまとめる（sortedByDate が新しい順なので years も新しい順になる）
-const years = [...new Set(sortedByDate.map((a) => lastUpdated(a).slice(0, 4)))];
-
-const techCount = new Set(apps.flatMap((a) => a.tech)).size;
-const demoCount = Object.keys(publicUrls).length;
+const nameOf = (slug: string) => featuredApps.find((a) => a.slug === slug)?.name;
+const heroShots = featuredApps.filter((a) => a.showcase.imageKind === 'phone').slice(0, 2);
 ---
-<BaseLayout title="165cm の作りもの — 趣味で作ったアプリたち">
+<BaseLayout title="165cm — 現場と暮らしの小さなアプリを作る個人開発者">
   <section class="hero">
-    <div class="emoji">🛠️</div>
-    <h1>日常の「ちょっと困った」を、自分で作って解決しています</h1>
-    <p class="lead">
-      仕事道具、家族向けアプリ、Chrome拡張まで。
-      趣味で作ったアプリをここに並べています。
-    </p>
+    <div class="hero-text">
+      <p class="eyebrow">個人開発者 165cm（ぱぱぞん）</p>
+      <h1><span class="nw">現場の「ちょっと困った」を、</span><wbr /><span class="nw">スマホで使えるアプリに。</span></h1>
+      <p class="lead">
+        家電修理の現場で働きながら、仕事や暮らしの道具をアプリにしています。
+        企画から公開・販売・運用まで、ひとりで回しています。
+      </p>
+      <p class="lead">小さなツールの開発のご相談を、副業として少しだけ受け付けています。</p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#consult">開発の相談をする</a>
+        <a class="btn" href="#works">作品を見る</a>
+      </div>
+    </div>
+    <div class="hero-shots" aria-hidden="true">
+      {heroShots.map((a) => <img src={`${base}/${a.showcase.image}`} alt="" />)}
+    </div>
   </section>
 
-  <div class="intro-card">
-    <h2>はじめまして、165cm です</h2>
-    <p>身の回りで「これあったら便利だな」と思ったものを、ちょこちょこ自分で作って遊んでいます。</p>
-    <p>誰かの役に立てば嬉しいし、立たなくても作るのが楽しいので続いています。</p>
-    <p class="meta">
-      <a href="https://github.com/165cm" target="_blank" rel="noopener">GitHub →</a>
+  <ul class="proof-strip">
+    <li><strong>{featuredApps.length}</strong>作品を厳選して掲載</li>
+    <li><strong>2</strong>件を独自ドメインで運用</li>
+    <li><strong>有償</strong>ライセンスを販売中</li>
+    <li><strong>126</strong>件の自動テストで確認</li>
+  </ul>
+
+  <section id="works" class="section">
+    <p class="kicker">WORKS</p>
+    <h2>最近の作品</h2>
+    <p class="section-lead">どれも自分や身近な人の困りごとから生まれ、実際に使われている作品です。</p>
+    <div class="works">
+      {featuredApps.map((app, i) => (
+        <WorkCard app={app} publicUrl={publicUrlOf(app.slug, app.links.demo)} reverse={i % 2 === 1} />
+      ))}
+    </div>
+  </section>
+
+  <section id="services" class="section">
+    <p class="kicker">SERVICES</p>
+    <h2>お手伝いできること</h2>
+    <div class="services">
+      {services.map((s) => (
+        <div class="service">
+          <div class="service-icon" aria-hidden="true">{s.icon}</div>
+          <h3>{s.title}</h3>
+          <p>{s.text}</p>
+          {nameOf(s.example) && <a href={`${base}/apps/${s.example}`}>例：{nameOf(s.example)} →</a>}
+        </div>
+      ))}
+    </div>
+    <div class="fits">
+      <div class="fit fit--good">
+        <h3>こんなご相談に向いています</h3>
+        <ul>{fits.good.map((f) => <li>{f}</li>)}</ul>
+      </div>
+      <div class="fit fit--bad">
+        <h3>お受けしにくいもの</h3>
+        <ul>{fits.bad.map((f) => <li>{f}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="flow" class="section">
+    <p class="kicker">FLOW</p>
+    <h2>進め方</h2>
+    <ol class="flow">
+      {steps.map((s, i) => (
+        <li>
+          <span class="flow-num">{i + 1}</span>
+          <h3>{s.title}</h3>
+          <p>{s.text}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section id="consult" class="section consult">
+    <p class="kicker">CONTACT</p>
+    <h2>開発の相談をする</h2>
+    <p class="section-lead">
+      まだ「こんなことできる？」くらいの段階で大丈夫です。質問に答えると相談メールの下書きができます。
+      直接メールする場合は <a href={`mailto:${consult.email}`}>{consult.email}</a> へどうぞ。
     </p>
-  </div>
-
-  <!-- 一覧の並べ方を切り替えるトグル -->
-  <div class="view-switcher" role="tablist" aria-label="一覧の並べ方">
-    <span class="view-switcher-label">並べ方：</span>
-    <button class="view-btn is-active" type="button" role="tab" aria-selected="true" data-view="category">
-      🗂️ 用途
-    </button>
-    <button class="view-btn" type="button" role="tab" aria-selected="false" data-view="platform">
-      🧱 プラットフォーム
-    </button>
-    <button class="view-btn" type="button" role="tab" aria-selected="false" data-view="date">
-      🗓️ 最近の更新順
-    </button>
-  </div>
-
-  <!-- 用途別（既存の並べ方） -->
-  <div class="view" data-view="category">
-    {cats.map((cat) => (
-      <GroupSection
-        id={cat}
-        emoji={categories[cat].emoji}
-        label={categories[cat].label}
-        description={categories[cat].description}
-        apps={appsByCategory(cat)}
-        publicUrls={publicUrls}
-      />
-    ))}
-  </div>
-
-  <!-- プラットフォーム別 -->
-  <div class="view" data-view="platform" hidden>
-    {plats.map((p) => {
-      const list = appsByPlatform(p);
-      return list.length > 0 && (
-        <GroupSection
-          emoji={platforms[p].emoji}
-          label={platforms[p].label}
-          description={platforms[p].description}
-          apps={list}
-          publicUrls={publicUrls}
-        />
-      );
-    })}
-  </div>
-
-  <!-- 新しい順（年ごと） -->
-  <div class="view" data-view="date" hidden>
-    {years.map((year) => (
-      <GroupSection
-        emoji="🗓️"
-        label={`${year}年`}
-        apps={sortedByDate.filter((a) => lastUpdated(a).startsWith(year))}
-        publicUrls={publicUrls}
-      />
-    ))}
-  </div>
-
-  <section class="stats">
-    <div class="item">
-      <div class="num">{apps.length}</div>
-      <div class="label">公開アプリ</div>
-    </div>
-    <div class="item">
-      <div class="num">{demoCount}</div>
-      <div class="label">触れるデモ</div>
-    </div>
-    <div class="item">
-      <div class="num">{techCount}</div>
-      <div class="label">使った技術</div>
-    </div>
+    <ConsultChat />
   </section>
 </BaseLayout>
 
 <style>
-  .view-switcher {
-    display: flex;
-    flex-wrap: wrap;
+  .hero {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 40px;
     align-items: center;
-    gap: 0.5rem;
-    margin: 2rem 0 1.5rem;
+    padding: 64px 0 40px;
   }
-  .view-switcher-label {
-    font-size: 0.9rem;
-    color: #7a6a55;
-    margin-right: 0.25rem;
+  .eyebrow {
+    margin: 0 0 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--accent);
   }
-  .view-btn {
-    font: inherit;
-    font-size: 0.95rem;
-    padding: 0.45rem 0.95rem;
-    border: 1px solid #e0d4c0;
-    border-radius: 999px;
+  .hero h1 {
+    font-size: clamp(1.4rem, 5.6vw, 2.35rem);
+    line-height: 1.35;
+    margin: 0 0 18px;
+    letter-spacing: 0.01em;
+  }
+  .nw { display: inline-block; }
+  .lead { color: var(--ink-soft); font-size: 1.05rem; margin: 0 0 8px; max-width: 34em; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+  .hero-shots {
+    position: relative;
+    height: 420px;
+  }
+  .hero-shots img {
+    position: absolute;
+    width: 190px;
+    border-radius: 26px;
+    border: 6px solid var(--ink);
+    box-shadow: 0 20px 40px rgba(28, 31, 38, 0.18);
     background: #fff;
-    color: #5a4a35;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, color 0.15s;
   }
-  .view-btn:hover {
-    border-color: #c9b48f;
+  .hero-shots img:nth-child(1) { left: 8%; top: 0; transform: rotate(-4deg); }
+  .hero-shots img:nth-child(2) { right: 6%; top: 40px; transform: rotate(4deg); }
+
+  .proof-strip {
+    list-style: none;
+    margin: 0;
+    padding: 18px 22px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    font-size: 0.9rem;
+    color: var(--ink-soft);
   }
-  .view-btn.is-active {
-    background: #5a3a1c;
-    border-color: #5a3a1c;
+  .proof-strip strong { display: block; font-size: 1.5rem; color: var(--ink); line-height: 1.3; }
+
+  .section { padding: 80px 0 0; }
+  .kicker { margin: 0; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.16em; color: var(--accent); }
+  .section h2 { margin: 4px 0 10px; font-size: clamp(1.4rem, 3vw, 1.9rem); }
+  .section-lead { color: var(--ink-soft); margin: 0 0 32px; max-width: 46em; }
+
+  .works { display: flex; flex-direction: column; gap: 28px; }
+
+  .services { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .service {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .service-icon { font-size: 1.6rem; }
+  .service h3 { margin: 8px 0 6px; font-size: 1.02rem; }
+  .service p { margin: 0 0 12px; font-size: 0.9rem; color: var(--ink-soft); flex-grow: 1; }
+  .service a { font-size: 0.85rem; font-weight: 500; }
+
+  .fits { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .fit { border-radius: var(--radius); padding: 18px 22px; }
+  .fit h3 { margin: 0 0 8px; font-size: 0.98rem; }
+  .fit ul { margin: 0; padding-left: 1.2em; font-size: 0.9rem; }
+  .fit--good { background: var(--good-bg); }
+  .fit--bad { background: var(--surface-2); color: var(--ink-soft); }
+
+  .flow {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    counter-reset: none;
+  }
+  .flow li {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .flow-num {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--ink);
     color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
   }
-  .view[hidden] {
-    display: none;
+  .flow h3 { margin: 10px 0 4px; font-size: 1rem; }
+  .flow p { margin: 0; font-size: 0.88rem; color: var(--ink-soft); }
+
+  .consult .section-lead a { word-break: break-all; }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; padding-top: 40px; }
+    .hero-shots { height: 300px; max-width: 360px; width: 100%; margin: 0 auto; }
+    .hero-shots img { width: 140px; border-width: 5px; border-radius: 20px; }
+    .proof-strip { grid-template-columns: 1fr 1fr; }
+    .services { grid-template-columns: 1fr 1fr; }
+    .flow { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .services, .fits, .flow { grid-template-columns: 1fr; }
+    .section { padding-top: 64px; }
   }
 </style>
-
-<script>
-  const buttons = document.querySelectorAll<HTMLButtonElement>('.view-btn');
-  const views = document.querySelectorAll<HTMLElement>('.view');
-  buttons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const target = btn.dataset.view;
-      buttons.forEach((b) => {
-        const active = b === btn;
-        b.classList.toggle('is-active', active);
-        b.setAttribute('aria-selected', String(active));
-      });
-      views.forEach((v) => {
-        v.hidden = v.dataset.view !== target;
-      });
-    });
-  });
-</script>
