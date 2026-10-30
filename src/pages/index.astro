@@ -3,7 +3,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import WorkCard from '../components/WorkCard.astro';
 import ConsultChat from '../components/ConsultChat.astro';
 import { featuredApps } from '../data/apps';
-import { consult, services, fits, steps } from '../data/consult';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { consult, career, services, fits, steps } from '../data/consult';
+import { fetchMergedPrCountLastYear } from '../data/activity';
+import { owner } from '../data/business';
 import { fetchRepoMeta } from '../data/repoUpdates';
 import { resolveShots } from '../data/screenshots';
 
@@ -21,39 +25,97 @@ const publicUrlOf = (slug: string, demo?: string) => {
 const nameOf = (slug: string) => featuredApps.find((a) => a.slug === slug)?.name;
 // 作品の画像（作品リポジトリの docs/portfolio/ にあれば最新のものを使う）
 const shots = await resolveShots(featuredApps);
-const heroShots = featuredApps.map((a) => shots[a.slug]).filter((s) => s?.kind === 'phone').slice(0, 2);
+
+// ヒーローの画像。public/hero.(webp|png|jpg) を置けばそれを使い、無ければ
+// 作品のスクリーンショットをパソコンとスマホの枠に入れて見せる
+const heroFile = ['webp', 'png', 'jpg']
+  .map((ext) => `hero.${ext}`)
+  .find((f) => existsSync(join(process.cwd(), 'public', f)));
+const wideShot = featuredApps.map((a) => shots[a.slug]).find((s) => s?.kind === 'wide');
+const phoneShot = featuredApps.map((a) => shots[a.slug]).find((s) => s?.kind === 'phone');
+
+// この1年の改善の回数（取り込んだプルリクエスト数）。取れなければ数字なしで見せる
+const prCount = await fetchMergedPrCountLastYear();
+
+// 数字の実績。ITに詳しくない人が読んでもわかる言葉で説明を付ける
+const proofs = [
+  {
+    num: career.years,
+    title: '個人でのアプリ開発',
+    text: `自分用も含めて、これまで${career.tools}の道具を作ってきました。`,
+  },
+  {
+    num: `${featuredApps.length}本`,
+    title: '今月も開発中のアプリ',
+    text: 'ここで紹介しているアプリは、どれも今月も手を入れているものです。作って終わりにしません。',
+  },
+  {
+    num: career.paidUsers,
+    title: '有料版の利用者',
+    text: '確定申告のツールは、ブログ経由で有料版を個人販売し、たくさんの方に使っていただいています。',
+  },
+  prCount
+    ? {
+        num: `${prCount}回`,
+        title: 'この1年の改善',
+        text: '使いにくい所を直す、機能を足す。小さな改善を1つずつ、コツコツ積み重ねています。',
+      }
+    : {
+        num: '日々',
+        title: 'コツコツ改善',
+        text: '使いにくい所を直す、機能を足す。小さな改善を1つずつ、コツコツ積み重ねています。',
+      },
+];
 ---
-<BaseLayout title="165cm — 現場と暮らしの小さなアプリを作る個人開発者">
-  <section class="hero">
-    <div class="hero-text">
-      <p class="eyebrow">個人開発者 165cm（ぱぱぞん）</p>
-      <h1><span class="nw">現場の「ちょっと困った」を、</span><wbr /><span class="nw">スマホで使えるアプリに。</span></h1>
-      <p class="lead">
-        家電修理の現場で働きながら、仕事や暮らしの道具をアプリにしています。
-        企画から公開・販売・運用まで、ひとりで回しています。
-      </p>
-      <p class="lead">小さなツールの開発のご相談を、副業として少しだけ受け付けています。</p>
-      <div class="hero-actions">
-        <a class="btn primary" href="#consult">開発の相談をする</a>
-        <a class="btn" href="#works">作品を見る</a>
+<BaseLayout title={`${owner.name} — 暮らしと仕事の小さなアプリを作る個人開発者`}>
+  <section class:list={['hero-band', { 'hero-band--image': heroFile }]} slot="band">
+    <div class="container hero">
+      <div class="hero-text">
+        <p class="eyebrow">個人開発者 {owner.name}</p>
+        <h1><span class="nw">「こんなのあったらいいな」を、</span><wbr /><span class="nw">スマホで使えるアプリに。</span></h1>
+        <p class="lead">
+          本業のかたわら、{career.years}アプリを作ってきました。
+          仕事の面倒な作業を減らす道具から、毎日の家事をラクにするアプリまで、自分用も含めて{career.tools}になります。
+        </p>
+        <p class="lead">「こんなことできる？」という小さなご相談から、副業として少しだけお受けしています。</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#consult">気軽に相談してみる</a>
+          <a class="btn btn--on-dark" href="#works">作ったものを見る</a>
+        </div>
       </div>
+      {!heroFile && (
+        <div class="devices" aria-hidden="true">
+          {wideShot && (
+            <div class="laptop">
+              <div class="laptop-screen"><img src={`${base}/${wideShot.src}`} alt="" /></div>
+              <div class="laptop-base"></div>
+            </div>
+          )}
+          {phoneShot && <img class="phone" src={`${base}/${phoneShot.src}`} alt="" />}
+        </div>
+      )}
     </div>
-    <div class="hero-shots" aria-hidden="true">
-      {heroShots.map((s) => <img src={`${base}/${s.src}`} alt="" />)}
-    </div>
+    {heroFile && <img class="hero-bg" src={`${base}/${heroFile}`} alt="机の上のパソコンとスマホ。画面にはグラフやチェックの付いたアプリが映っている" />}
   </section>
 
-  <ul class="proof-strip">
-    <li><strong>{featuredApps.length}</strong>作品を厳選して掲載</li>
-    <li><strong>2</strong>件を独自ドメインで運用</li>
-    <li><strong>有償</strong>ライセンスを販売中</li>
-    <li><strong>126</strong>件の自動テストで確認</li>
-  </ul>
+  <section class="section proofs-section">
+    <p class="sec-label">numbers</p>
+    <h2>数字で見る実績</h2>
+    <ul class="proofs">
+      {proofs.map((p) => (
+        <li>
+          <p class="proof-num">{p.num}</p>
+          <h3>{p.title}</h3>
+          <p>{p.text}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
 
   <section id="works" class="section">
-    <p class="kicker">WORKS</p>
-    <h2>最近の作品</h2>
-    <p class="section-lead">どれも自分や身近な人の困りごとから生まれ、実際に使われている作品です。</p>
+    <p class="sec-label">works</p>
+    <h2>最近作ったもの</h2>
+    <p class="section-lead">どれも自分や家族、身近な人の「困った」から生まれ、実際に使われているアプリです。</p>
     <div class="works">
       {featuredApps.map((app, i) => (
         <WorkCard app={app} shot={shots[app.slug]} publicUrl={publicUrlOf(app.slug, app.links.demo)} reverse={i % 2 === 1} />
@@ -62,7 +124,7 @@ const heroShots = featuredApps.map((a) => shots[a.slug]).filter((s) => s?.kind =
   </section>
 
   <section id="services" class="section">
-    <p class="kicker">SERVICES</p>
+    <p class="sec-label">services</p>
     <h2>お手伝いできること</h2>
     <div class="services">
       {services.map((s) => (
@@ -87,12 +149,12 @@ const heroShots = featuredApps.map((a) => shots[a.slug]).filter((s) => s?.kind =
   </section>
 
   <section id="flow" class="section">
-    <p class="kicker">FLOW</p>
+    <p class="sec-label">flow</p>
     <h2>進め方</h2>
     <ol class="flow">
       {steps.map((s, i) => (
         <li>
-          <span class="flow-num">{i + 1}</span>
+          <span class="flow-num">{String(i + 1).padStart(2, '0')}</span>
           <h3>{s.title}</h3>
           <p>{s.text}</p>
         </li>
@@ -101,10 +163,10 @@ const heroShots = featuredApps.map((a) => shots[a.slug]).filter((s) => s?.kind =
   </section>
 
   <section id="consult" class="section consult">
-    <p class="kicker">CONTACT</p>
-    <h2>開発の相談をする</h2>
+    <p class="sec-label">contact</p>
+    <h2>気軽にご相談ください</h2>
     <p class="section-lead">
-      まだ「こんなことできる？」くらいの段階で大丈夫です。質問に答えると相談メールの下書きができます。
+      「こんなことできる？」くらいの段階で大丈夫です。下の質問に答えていくと、相談のメール文が自動でできあがります。
       直接メールする場合は <a href={`mailto:${consult.email}`}>{consult.email}</a> へどうぞ。
     </p>
     <ConsultChat />
@@ -112,64 +174,111 @@ const heroShots = featuredApps.map((a) => shots[a.slug]).filter((s) => s?.kind =
 </BaseLayout>
 
 <style>
+  .hero-band {
+    background-color: var(--dark);
+    background-image:
+      linear-gradient(var(--dark-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--dark-line) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: -1px -1px;
+    color: #e6edf6;
+    border-bottom: 1px solid var(--dark-line);
+  }
   .hero {
     display: grid;
-    grid-template-columns: 1.5fr 1fr;
+    grid-template-columns: 1.25fr 1fr;
     gap: 40px;
     align-items: center;
-    padding: 64px 0 40px;
+    padding-top: 72px;
+    padding-bottom: 72px;
   }
   .eyebrow {
-    margin: 0 0 12px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: var(--accent);
+    margin: 0 0 14px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--accent-bright);
   }
   .hero h1 {
-    font-size: clamp(1.4rem, 5.6vw, 2.35rem);
-    line-height: 1.35;
+    font-size: clamp(1.3rem, 5.2vw, 2.3rem);
+    line-height: 1.4;
     margin: 0 0 18px;
-    letter-spacing: 0.01em;
+    color: #fff;
   }
   .nw { display: inline-block; }
-  .lead { color: var(--ink-soft); font-size: 1.05rem; margin: 0 0 8px; max-width: 34em; }
-  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
-  .hero-shots {
-    position: relative;
-    height: 420px;
-  }
-  .hero-shots img {
-    position: absolute;
-    width: 190px;
-    border-radius: 26px;
-    border: 6px solid var(--ink);
-    box-shadow: 0 20px 40px rgba(28, 31, 38, 0.18);
-    background: #fff;
-  }
-  .hero-shots img:nth-child(1) { left: 8%; top: 0; transform: rotate(-4deg); }
-  .hero-shots img:nth-child(2) { right: 6%; top: 40px; transform: rotate(4deg); }
+  .lead { color: #a9b6c8; font-size: 1.02rem; margin: 0 0 8px; max-width: 34em; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+  .btn--on-dark { color: #e6edf6; border-color: #4a5a75; }
+  .btn--on-dark:hover { background: #e6edf6; color: var(--dark); }
 
-  .proof-strip {
-    list-style: none;
-    margin: 0;
-    padding: 18px 22px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px 20px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    font-size: 0.9rem;
-    color: var(--ink-soft);
+  /* ヒーロー画像は左側が無地なので、帯の右側に敷いて左に文字を置く */
+  .hero-band { position: relative; overflow: hidden; }
+  .hero-band--image { background: #0e182b; }
+  .hero-band--image .hero { grid-template-columns: minmax(0, 600px); position: relative; z-index: 1; }
+  .hero-band--image .lead { color: #c3cede; }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: right center;
   }
-  .proof-strip strong { display: block; font-size: 1.5rem; color: var(--ink); line-height: 1.3; }
+  .hero-band--image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, #0e182b 38%, rgba(14, 24, 43, 0.85) 52%, rgba(14, 24, 43, 0.25) 66%, transparent 76%);
+  }
+  .devices { position: relative; padding: 0 0 40px; }
+  .laptop { width: 92%; }
+  .laptop-screen {
+    background: #1b2333;
+    border: 10px solid #1b2333;
+    border-bottom-width: 14px;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+    aspect-ratio: 16 / 10.5;
+  }
+  .laptop-screen img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .laptop-base {
+    height: 12px;
+    margin: 0 -6%;
+    background: linear-gradient(#c9d1dc, #8e99a8);
+    border-radius: 0 0 12px 12px;
+  }
+  .phone {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 30%;
+    border: 5px solid #05070c;
+    border-radius: 18px;
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.45);
+  }
 
   .section { padding: 80px 0 0; }
-  .kicker { margin: 0; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.16em; color: var(--accent); }
-  .section h2 { margin: 4px 0 10px; font-size: clamp(1.4rem, 3vw, 1.9rem); }
+  .section h2 { margin: 4px 0 10px; font-size: clamp(1.4rem, 3vw, 1.85rem); }
   .section-lead { color: var(--ink-soft); margin: 0 0 32px; max-width: 46em; }
+
+  .proofs {
+    list-style: none;
+    margin: 24px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .proofs li {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .proof-num { margin: 0; font-size: 1.9rem; font-weight: 700; line-height: 1.25; color: var(--accent-dark); }
+  .proofs h3 { margin: 6px 0 6px; font-size: 1rem; }
+  .proofs li > p:last-child { margin: 0; font-size: 0.86rem; color: var(--ink-soft); line-height: 1.7; }
 
   .works { display: flex; flex-direction: column; gap: 28px; }
 
@@ -182,16 +291,16 @@ const heroShots = featuredApps.map((a) => shots[a.slug]).filter((s) => s?.kind =
     display: flex;
     flex-direction: column;
   }
-  .service-icon { font-size: 1.6rem; }
+  .service-icon { font-size: 1.4rem; }
   .service h3 { margin: 8px 0 6px; font-size: 1.02rem; }
   .service p { margin: 0 0 12px; font-size: 0.9rem; color: var(--ink-soft); flex-grow: 1; }
   .service a { font-size: 0.85rem; font-weight: 500; }
 
   .fits { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
-  .fit { border-radius: var(--radius); padding: 18px 22px; }
+  .fit { border-radius: var(--radius); padding: 18px 22px; border: 1px solid var(--border); }
   .fit h3 { margin: 0 0 8px; font-size: 0.98rem; }
   .fit ul { margin: 0; padding-left: 1.2em; font-size: 0.9rem; }
-  .fit--good { background: var(--good-bg); }
+  .fit--good { background: var(--good-bg); border-color: #c4e8d6; }
   .fit--bad { background: var(--surface-2); color: var(--ink-soft); }
 
   .flow {
@@ -201,7 +310,6 @@ const heroShots = featuredApps.map((a) => shots[a.slug]).filter((s) => s?.kind =
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
-    counter-reset: none;
   }
   .flow li {
     background: var(--surface);
@@ -209,32 +317,28 @@ const heroShots = featuredApps.map((a) => shots[a.slug]).filter((s) => s?.kind =
     border-radius: var(--radius);
     padding: 20px;
   }
-  .flow-num {
-    display: inline-grid;
-    place-items: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: var(--ink);
-    color: #fff;
-    font-weight: 700;
-    font-size: 0.9rem;
-  }
-  .flow h3 { margin: 10px 0 4px; font-size: 1rem; }
+  .flow-num { font-family: var(--mono); font-weight: 600; font-size: 0.9rem; color: var(--accent); }
+  .flow h3 { margin: 6px 0 4px; font-size: 1rem; }
   .flow p { margin: 0; font-size: 0.88rem; color: var(--ink-soft); }
 
   .consult .section-lead a { word-break: break-all; }
 
+  /* 画像に文字が重なる幅では、文字の下に画像を並べる */
+  @media (max-width: 1180px) {
+    .hero-band--image .hero { grid-template-columns: 1fr; padding-bottom: 28px; }
+    .hero-band--image::after { display: none; }
+    .hero-bg { position: static; display: block; height: auto; max-height: 440px; aspect-ratio: 16 / 7; }
+  }
   @media (max-width: 860px) {
-    .hero { grid-template-columns: 1fr; padding-top: 40px; }
-    .hero-shots { height: 300px; max-width: 360px; width: 100%; margin: 0 auto; }
-    .hero-shots img { width: 140px; border-width: 5px; border-radius: 20px; }
-    .proof-strip { grid-template-columns: 1fr 1fr; }
+    .hero-bg { aspect-ratio: 16 / 9; }
+    .hero { grid-template-columns: 1fr; padding-top: 48px; padding-bottom: 48px; }
+
+    .proofs { grid-template-columns: 1fr 1fr; }
     .services { grid-template-columns: 1fr 1fr; }
     .flow { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 560px) {
-    .services, .fits, .flow { grid-template-columns: 1fr; }
+    .proofs, .services, .fits, .flow { grid-template-columns: 1fr; }
     .section { padding-top: 64px; }
   }
 </style>

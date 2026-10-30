@@ -1,35 +1,37 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { business, owner } from '../data/business';
-import { consult } from '../data/consult';
+import { consult, career } from '../data/consult';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<BaseLayout title="プロフィール — 165cm">
+<BaseLayout title={`プロフィール — ${owner.name}`}>
   <article class="about-page">
-    <p class="kicker">PROFILE</p>
+    <p class="sec-label">profile</p>
     <h1>プロフィール</h1>
 
     <div class="profile">
       <img class="avatar" src={`${base}/${owner.image}`} alt={owner.name} width="112" height="112" />
       <div>
-        <p class="name">165cm（{owner.name}）</p>
+        <p class="name">{owner.name}</p>
         <p class="role">{owner.role}</p>
+        <p class="handle">GitHub：<a href="https://github.com/165cm" target="_blank" rel="noopener">@165cm</a></p>
       </div>
     </div>
     {owner.bio.map((t) => <p>{t}</p>)}
+    <p>個人でのアプリ開発は{career.years}。自分用も含めて、これまで{career.tools}の道具を作ってきました。</p>
 
     <h2>大事にしていること</h2>
     <ul>
       <li><strong>現場で本当に使えること。</strong>自分が毎日使う道具として作り、使いながら直しています。</li>
       <li><strong>小さく作って、早く見せること。</strong>最初から全部を作らず、動くものを触ってもらって育てます。</li>
-      <li><strong>公開して終わりにしないこと。</strong>独自ドメインでの運用や、有料版の販売・サポートまで自分で行っています。</li>
-      <li><strong>AI を道具として使いこなすこと。</strong>開発に AI を取り入れ、少人数でも品質と速さを両立させています。</li>
+      <li><strong>作って終わりにしないこと。</strong>公開したあとの運営や、有料版の販売・お問い合わせ対応まで自分で行っています。</li>
+      <li><strong>AI を上手に使うこと。</strong>開発に AI を取り入れ、ひとりでも早く・丁寧に作れるようにしています。</li>
     </ul>
 
     <h2>このサイトについて</h2>
     <p>
       直近で手を入れている作品の中から、実際に使われているものを選んで載せています。
-      ソースコードは <a href="https://github.com/165cm" target="_blank" rel="noopener">GitHub（@165cm）</a> で公開しています。
+      ソースコードは GitHub（アカウント名 <a href="https://github.com/165cm" target="_blank" rel="noopener">@165cm</a>）で公開しています。
     </p>
     <p>
       有料サービスの販売は、個人事業「<a href={`${base}/business/`}>{business.name}</a>」として行っています。
@@ -44,7 +46,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 </BaseLayout>
 
 <style>
-  .kicker { margin: 0; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.16em; color: var(--accent); }
   .about-page h1 { margin-top: 4px; }
   .about-page h2 { margin-top: 40px; font-size: 1.2rem; }
   .about-page li { margin: 6px 0; }
@@ -53,4 +54,5 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   .avatar { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; flex: none; }
   .name { margin: 0; font-weight: 700; font-size: 1.15rem; }
   .role { margin: 0; color: var(--ink-soft); font-size: 0.9rem; }
+  .handle { margin: 0; font-family: var(--mono); font-size: 0.82rem; }
 </style>

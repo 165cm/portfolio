@@ -1,17 +1,23 @@
 :root {
-  --bg: #f7f5f0;
+  /* 開発者らしい、落ち着いた寒色系。アクセントはターミナルの緑 */
+  --bg: #f6f8fa;
   --surface: #ffffff;
-  --surface-2: #f2efe8;
-  --ink: #1c1f26;
-  --ink-soft: #5f6470;
-  --accent: #d0532f;
-  --accent-dark: #a9401f;
-  --good-bg: #eaf3ec;
-  --border: #e7e2d8;
-  --border-strong: #d3ccbe;
-  --shadow: 0 1px 2px rgba(28, 31, 38, 0.04), 0 8px 24px rgba(28, 31, 38, 0.06);
-  --radius: 16px;
+  --surface-2: #eef2f6;
+  --ink: #0f172a;
+  --ink-soft: #526075;
+  --accent: #0f9f6e;
+  --accent-dark: #0b7a55;
+  --accent-bright: #34d399;
+  --dark: #0b1220;
+  --dark-2: #111a2e;
+  --dark-line: #22304a;
+  --good-bg: #e7f6ef;
+  --border: #dde3ea;
+  --border-strong: #c5ced9;
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 18px rgba(15, 23, 42, 0.05);
+  --radius: 10px;
   --max-w: 1080px;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans JP', monospace;
 }
 
 * { box-sizing: border-box; }
@@ -31,7 +37,7 @@ html, body {
 
 img { max-width: 100%; height: auto; }
 
-a { color: var(--accent); text-decoration: none; }
+a { color: var(--accent-dark); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 .container {
@@ -39,6 +45,16 @@ a:hover { text-decoration: underline; }
   margin: 0 auto;
   padding: 0 20px;
 }
+
+/* セクション見出しの上の小さなラベル（// works のようなコードのコメント風） */
+.sec-label {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+.sec-label::before { content: '// '; opacity: 0.6; }
 
 .site-header {
   position: sticky;
@@ -57,9 +73,25 @@ a:hover { text-decoration: underline; }
   flex-wrap: wrap;
 }
 .site-header .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 700;
   font-size: 1.05rem;
   color: var(--ink);
+}
+.site-header .brand:hover { text-decoration: none; }
+.brand-prompt {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: var(--dark);
+  color: var(--accent-bright);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 .site-header nav { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; }
 .site-header nav a {
@@ -70,10 +102,10 @@ a:hover { text-decoration: underline; }
   color: #fff;
   background: var(--ink);
   padding: 6px 14px;
-  border-radius: 999px;
+  border-radius: 8px;
   font-weight: 500;
 }
-.site-header nav a.nav-cta:hover { background: var(--accent); text-decoration: none; }
+.site-header nav a.nav-cta:hover { background: var(--accent-dark); text-decoration: none; }
 @media (max-width: 640px) {
   /* スマホではヘッダーが2段になるため、固定せず本文を隠さないようにする */
   .site-header { position: static; padding: 10px 0; }
@@ -98,7 +130,7 @@ a:hover { text-decoration: underline; }
   align-items: center;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: calc(var(--radius) + 4px);
+  border-radius: calc(var(--radius) + 2px);
   box-shadow: var(--shadow);
   padding: 28px;
 }
@@ -106,14 +138,16 @@ a:hover { text-decoration: underline; }
 .work-visual {
   display: grid;
   place-items: center;
-  background: var(--surface-2);
+  background-color: var(--surface-2);
+  background-image: radial-gradient(var(--border-strong) 1px, transparent 1px);
+  background-size: 16px 16px;
   border-radius: var(--radius);
   min-height: 320px;
   padding: 24px;
   overflow: hidden;
 }
-.work-visual img { display: block; border-radius: 12px; box-shadow: 0 10px 28px rgba(28, 31, 38, 0.14); }
-.work-visual--phone img { width: min(220px, 70%); border-radius: 22px; border: 5px solid var(--ink); }
+.work-visual img { display: block; border-radius: 8px; box-shadow: 0 10px 28px rgba(15, 23, 42, 0.16); }
+.work-visual--phone img { width: min(220px, 70%); border-radius: 22px; border: 5px solid var(--dark); }
 .work-visual--wide img { width: 100%; }
 .figures { width: 100%; }
 .figures dl { margin: 0; display: grid; gap: 12px; }
@@ -122,20 +156,20 @@ a:hover { text-decoration: underline; }
   justify-content: space-between;
   align-items: baseline;
   gap: 12px;
-  background: var(--ink);
+  background: var(--dark);
   color: #fff;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 14px 18px;
 }
 .figures dt { font-size: 0.88rem; opacity: 0.8; }
-.figures dd { margin: 0; font-size: 1.6rem; font-weight: 700; color: #8fe3b5; }
+.figures dd { margin: 0; font-family: var(--mono); font-size: 1.5rem; font-weight: 600; color: var(--accent-bright); }
 .figures-note { margin: 10px 0 0; font-size: 0.75rem; color: var(--ink-soft); }
 .work-proof {
   display: inline-block;
   margin: 0 0 8px;
-  padding: 3px 12px;
-  border-radius: 999px;
-  background: #fde9e1;
+  padding: 2px 10px;
+  border-radius: 6px;
+  background: var(--good-bg);
   color: var(--accent-dark);
   font-size: 0.8rem;
   font-weight: 700;
@@ -147,8 +181,9 @@ a:hover { text-decoration: underline; }
 .work-skills { list-style: none; margin: 0 0 18px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .work-skills li {
   font-size: 0.78rem;
-  padding: 3px 10px;
-  border-radius: 999px;
+  padding: 2px 9px;
+  border-radius: 6px;
+  background: var(--surface-2);
   border: 1px solid var(--border-strong);
   color: var(--ink-soft);
 }
@@ -162,8 +197,8 @@ a:hover { text-decoration: underline; }
 .tag {
   display: inline-block;
   font-size: 0.8rem;
-  padding: 3px 12px;
-  border-radius: 999px;
+  padding: 2px 10px;
+  border-radius: 6px;
   background: var(--surface-2);
   color: var(--ink-soft);
 }
@@ -208,11 +243,12 @@ a:hover { text-decoration: underline; }
 .app-detail li { margin: 4px 0; }
 .app-detail .tech-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .app-detail .tech {
-  background: #f1ece1;
+  background: var(--surface-2);
   border: 1px solid var(--border);
-  font-size: 0.85rem;
-  padding: 4px 12px;
-  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  padding: 3px 10px;
+  border-radius: 6px;
   color: var(--ink);
 }
 .app-detail .links {
@@ -223,7 +259,7 @@ a:hover { text-decoration: underline; }
 .btn {
   display: inline-block;
   padding: 10px 18px;
-  border-radius: 999px;
+  border-radius: 8px;
   font-size: 0.92rem;
   font-weight: 600;
   border: 1px solid var(--ink);

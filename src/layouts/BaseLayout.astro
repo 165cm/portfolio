@@ -1,10 +1,11 @@
 ---
 import '../styles/global.css';
+import { owner } from '../data/business';
 interface Props {
   title: string;
   description?: string;
 }
-const { title, description = '個人開発者 165cm のポートフォリオ。現場や暮らしの困りごとを、スマホで使える小さなアプリにしています。小さなツールの開発相談も受け付けています。' } = Astro.props;
+const { title, description = `個人開発者 ${owner.name} のポートフォリオ。現場や暮らしの困りごとを、スマホで使える小さなアプリにしています。小さなツールの開発相談も受け付けています。` } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <!doctype html>
@@ -18,13 +19,13 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&display=swap"
     />
   </head>
   <body>
     <header class="site-header">
       <div class="container">
-        <a href={`${base}/`} class="brand">165cm</a>
+        <a href={`${base}/`} class="brand"><span class="brand-prompt" aria-hidden="true">&gt;_</span>{owner.name}</a>
         <nav>
           <a href={`${base}/#works`}>作品</a>
           <a href={`${base}/#services`}>できること</a>
@@ -35,13 +36,16 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       </div>
     </header>
 
+    <!-- ページ幅いっぱいの帯（トップのヒーローなど） -->
+    <slot name="band" />
+
     <main class="container">
       <slot />
     </main>
 
     <footer class="site-footer">
       <div class="container">
-        <p>© 165cm — 現場と暮らしの小さなアプリ</p>
+        <p>© {owner.name}（GitHub <a href="https://github.com/165cm" target="_blank" rel="noopener">@165cm</a>）</p>
         <p>事業者情報・有料サービスの販売：<a href={`${base}/business/`}>ぱぱぞんアプリ（PAPAZON APPS）</a></p>
       </div>
     </footer>
