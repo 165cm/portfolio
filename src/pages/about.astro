@@ -2,9 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { business, owner } from '../data/business';
 import { consult, career } from '../data/consult';
+import { site, aiTeam } from '../data/site';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<BaseLayout title={`プロフィール — ${owner.name}`}>
+<BaseLayout title={`プロフィール — ${site.name}`}>
   <article class="about-page">
     <p class="sec-label">profile</p>
     <h1>プロフィール</h1>
@@ -25,12 +26,12 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       <li><strong>現場で本当に使えること。</strong>自分が毎日使う道具として作り、使いながら直しています。</li>
       <li><strong>小さく作って、早く見せること。</strong>最初から全部を作らず、動くものを触ってもらって育てます。</li>
       <li><strong>作って終わりにしないこと。</strong>公開したあとの運営や、有料版の販売・お問い合わせ対応まで自分で行っています。</li>
-      <li><strong>AI を上手に使うこと。</strong>開発に AI を取り入れ、ひとりでも早く・丁寧に作れるようにしています。</li>
+      <li><strong>AI を上手に使うこと。</strong>{aiTeam.map((a) => a.name).join('・')} を役割ごとに使い分け、ひとりでも早く・丁寧に作れるようにしています。何を作るかを決めるのと、最後に自分で触って確かめるのは私の仕事です。</li>
     </ul>
 
     <h2>このサイトについて</h2>
     <p>
-      直近で手を入れている作品の中から、実際に使われているものを選んで載せています。
+      「{site.name}」は、AI と一緒に作ったアプリを紹介するサイトです。直近で手を入れている作品の中から、実際に使われているものを選んで載せています。
       ソースコードは GitHub（アカウント名 <a href="https://github.com/165cm" target="_blank" rel="noopener">@165cm</a>）で公開しています。
     </p>
     <p>

@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { consult, career, services, fits, steps } from '../data/consult';
 import { fetchMergedPrCountLastYear } from '../data/activity';
 import { owner } from '../data/business';
+import { site, aiTeam, aiMerits } from '../data/site';
 import { fetchRepoMeta } from '../data/repoUpdates';
 import { resolveShots } from '../data/screenshots';
 
@@ -58,7 +59,7 @@ const proofs = [
     ? {
         num: `${prCount}回`,
         title: 'この1年の改善',
-        text: '使いにくい所を直す、機能を足す。小さな改善を1つずつ、コツコツ積み重ねています。',
+        text: '使いにくい所を直す、機能を足す。AI のチェックも通しながら、小さな改善をコツコツ積み重ねています。',
       }
     : {
         num: '日々',
@@ -67,21 +68,25 @@ const proofs = [
       },
 ];
 ---
-<BaseLayout title={`${owner.name} — 暮らしと仕事の小さなアプリを作る個人開発者`}>
+<BaseLayout title={`${site.name} — ${site.tagline}`}>
   <section class:list={['hero-band', { 'hero-band--image': heroFile }]} slot="band">
     <div class="container hero">
       <div class="hero-text">
-        <p class="eyebrow">個人開発者 {owner.name}</p>
-        <h1><span class="nw">「こんなのあったらいいな」を、</span><wbr /><span class="nw">スマホで使えるアプリに。</span></h1>
+        <p class="eyebrow">{site.name}</p>
+        <h1><span class="nw">「こんなのあったらいいな」を、</span><wbr /><span class="nw">AIと一緒にアプリに。</span></h1>
         <p class="lead">
-          本業のかたわら、{career.years}アプリを作ってきました。
-          仕事の面倒な作業を減らす道具から、毎日の家事をラクにするアプリまで、自分用も含めて{career.tools}になります。
+          個人開発者の{owner.name}です。本業のかたわら、{career.years}アプリを作ってきました（自分用も含めて{career.tools}）。
+          いまは{aiTeam.length}つの AI を相棒に、仕事の面倒な作業を減らす道具や、毎日の家事をラクにするアプリを作っています。
         </p>
         <p class="lead">「こんなことできる？」という小さなご相談から、副業として少しだけお受けしています。</p>
         <div class="hero-actions">
           <a class="btn primary" href="#consult">気軽に相談してみる</a>
           <a class="btn btn--on-dark" href="#works">作ったものを見る</a>
         </div>
+        <p class="ai-chips">
+          <span class="ai-chips-label">一緒に作っている AI</span>
+          {aiTeam.map((a) => <a class="ai-chip" href="#ai">{a.name}</a>)}
+        </p>
       </div>
       {!heroFile && (
         <div class="devices" aria-hidden="true">
@@ -115,12 +120,47 @@ const proofs = [
   <section id="works" class="section">
     <p class="sec-label">works</p>
     <h2>最近作ったもの</h2>
-    <p class="section-lead">どれも自分や家族、身近な人の「困った」から生まれ、実際に使われているアプリです。</p>
+    <p class="section-lead">どれも自分や家族、身近な人の「困った」から生まれ、AI と一緒に形にして、実際に使われているアプリです。</p>
     <div class="works">
       {featuredApps.map((app, i) => (
         <WorkCard app={app} shot={shots[app.slug]} publicUrl={publicUrlOf(app.slug, app.links.demo)} reverse={i % 2 === 1} />
       ))}
     </div>
+  </section>
+
+  <section id="ai" class="section">
+    <p class="sec-label">with ai</p>
+    <h2>AI と一緒に作る、ということ</h2>
+    <p class="section-lead">
+      AI に丸投げするのではなく、得意なことに合わせて役割を分け、小さなチームのように作っています。
+      何を作るかを決めるのと、最後に自分で触って確かめるのは、人である私の仕事です。
+    </p>
+    <ul class="team">
+      <li class="team-member team-member--human">
+        <p class="team-role">決める係・確かめる係</p>
+        <h3>{owner.name}（人）</h3>
+        <p>お話を聞いて何を作るか決め、AI に指示を出します。できあがったものは自分で触って確かめてからお渡しします。</p>
+      </li>
+      {aiTeam.map((a) => (
+        <li class="team-member">
+          <p class="team-role">{a.role}</p>
+          <h3>{a.name}</h3>
+          <p>{a.text}</p>
+        </li>
+      ))}
+    </ul>
+    <h3 class="sub-h">ご相談いただく方にとっての良いところ</h3>
+    <ul class="merits">
+      {aiMerits.map((m) => (
+        <li>
+          <h4>{m.title}</h4>
+          <p>{m.text}</p>
+        </li>
+      ))}
+    </ul>
+    <p class="ai-note">
+      🔒 お預かりしたデータや社外秘の情報は、ご了承をいただかないまま AI に入力することはありません。
+    </p>
   </section>
 
   <section id="services" class="section">
@@ -280,6 +320,39 @@ const proofs = [
   .proofs h3 { margin: 6px 0 6px; font-size: 1rem; }
   .proofs li > p:last-child { margin: 0; font-size: 0.86rem; color: var(--ink-soft); line-height: 1.7; }
 
+  .ai-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 22px 0 0; }
+  .ai-chips-label { font-size: 0.8rem; color: #8fa0b8; margin-right: 4px; }
+  .ai-chip {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: 1px solid #2f4a5a;
+    background: rgba(52, 211, 153, 0.08);
+    color: var(--accent-bright);
+  }
+  .ai-chip:hover { text-decoration: none; background: rgba(52, 211, 153, 0.18); }
+
+  .team { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .team-member {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .team-member--human { background: var(--dark); border-color: var(--dark); color: #e6edf6; }
+  .team-role { margin: 0; font-size: 0.78rem; font-weight: 700; color: var(--accent); }
+  .team-member--human .team-role { color: var(--accent-bright); }
+  .team-member h3 { margin: 4px 0 6px; font-family: var(--mono), 'Noto Sans JP', sans-serif; font-size: 1.05rem; }
+  .team-member > p:last-child { margin: 0; font-size: 0.88rem; color: var(--ink-soft); }
+  .team-member--human > p:last-child { color: #c3cede; }
+  .sub-h { margin: 36px 0 12px; font-size: 1.05rem; }
+  .merits { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .merits li { background: var(--good-bg); border: 1px solid #c4e8d6; border-radius: var(--radius); padding: 18px 20px; }
+  .merits h4 { margin: 0 0 4px; font-size: 1rem; color: var(--accent-dark); }
+  .merits p { margin: 0; font-size: 0.88rem; }
+  .ai-note { margin: 16px 0 0; font-size: 0.88rem; color: var(--ink-soft); }
+
   .works { display: flex; flex-direction: column; gap: 28px; }
 
   .services { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
@@ -334,11 +407,13 @@ const proofs = [
     .hero { grid-template-columns: 1fr; padding-top: 48px; padding-bottom: 48px; }
 
     .proofs { grid-template-columns: 1fr 1fr; }
+    .team { grid-template-columns: 1fr 1fr; }
+    .merits { grid-template-columns: 1fr; }
     .services { grid-template-columns: 1fr 1fr; }
     .flow { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 560px) {
-    .proofs, .services, .fits, .flow { grid-template-columns: 1fr; }
+    .proofs, .services, .fits, .flow, .team { grid-template-columns: 1fr; }
     .section { padding-top: 64px; }
   }
 </style>

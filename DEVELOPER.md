@@ -1,4 +1,4 @@
-# 165cm Portfolio — Developer Guide
+# ぱぱぞん Apps with AI — Developer Guide
 
 > ユーザー向け説明は [README.md](./README.md) を参照。
 
@@ -7,7 +7,7 @@
 | レイヤ | 採用技術 |
 |---|---|
 | 言語 / フレームワーク | TypeScript / Astro 4 |
-| データ | `src/data/apps.ts` / `consult.ts` / `business.ts`（静的データ） |
+| データ | `src/data/apps.ts` / `site.ts` / `consult.ts` / `business.ts`（静的データ） |
 | 外部API | GitHub（ビルド時のみ：リポジトリ情報と作品のスクリーンショット） |
 | デプロイ | GitHub Pages（GitHub Actions） |
 
@@ -35,7 +35,7 @@ src/
   ├ pages/        ルーティング（index.astro / about.astro / apps/[slug].astro / business/）
   ├ components/   UIコンポーネント（WorkCard — 実績1件 / ConsultChat — 開発相談チャット）
   ├ layouts/      共通レイアウト（BaseLayout / BusinessLayout）
-  ├ data/         apps.ts — 全アプリ情報の単一ソース / consult.ts — 開発相談の窓口・できること・進め方 / business.ts — 事業者・有料サービス・価格
+  ├ data/         apps.ts — 全アプリ情報の単一ソース / site.ts — サイト名・AIの使い方 / consult.ts — 開発相談の窓口・できること・進め方 / business.ts — 事業者・有料サービス・価格
   └ styles/       global.css
 docs/
   └ standards/    全リポ共通の統一運用マニュアル

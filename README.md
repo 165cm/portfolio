@@ -1,6 +1,6 @@
-# 165cm Portfolio ![Tier](https://img.shields.io/badge/tier-utility-orange)
+# ぱぱぞん Apps with AI (Portfolio) ![Tier](https://img.shields.io/badge/tier-utility-orange)
 
-> ぱぱぞん（GitHub: @165cm）の作品と、小さな開発のご相談窓口をまとめたポートフォリオサイト
+> ぱぱぞん（GitHub: @165cm）が AI（Claude Code・Codex・Gemini）と一緒に作ったアプリと、小さな開発のご相談窓口をまとめたポートフォリオサイト
 
 <!-- docs/screenshots/ にスクリーンショットを追加してください -->
 

@@ -81,6 +81,7 @@ a:hover { text-decoration: underline; }
   color: var(--ink);
 }
 .site-header .brand:hover { text-decoration: none; }
+.brand-sub { font-family: var(--mono); font-size: 0.8rem; font-weight: 600; color: var(--accent); white-space: nowrap; }
 .brand-prompt {
   display: inline-grid;
   place-items: center;
