@@ -1,11 +1,13 @@
 ---
 import '../styles/global.css';
+import { owner } from '../data/business';
+import { site } from '../data/site';
 interface Props {
   title: string;
   description?: string;
 }
-const { title, description = '165cmが趣味で作っているアプリの紹介サイト。日常の「ちょっと困った」を自作で解決しています。' } = Astro.props;
-const base = import.meta.env.BASE_URL;
+const { title, description = `${site.name}｜個人開発者 ${owner.name} のポートフォリオ。Claude Code・Codex・Gemini などの AI と一緒に、暮らしと仕事の小さなアプリを作っています。小さなツールの開発相談も受け付けています。` } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <!doctype html>
 <html lang="ja">
@@ -18,21 +20,25 @@ const base = import.meta.env.BASE_URL;
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&display=swap"
     />
   </head>
   <body>
     <header class="site-header">
       <div class="container">
-        <a href={base} class="brand">165cm の作りもの</a>
+        <a href={`${base}/`} class="brand"><span class="brand-prompt" aria-hidden="true">&gt;_</span>{owner.name} <span class="brand-sub">Apps with AI</span></a>
         <nav>
-          <a href={base}>アプリ一覧</a>
-          <a href={`${base}${base.endsWith('/') ? '' : '/'}about`}>このサイトについて</a>
-          <a href={`${base}${base.endsWith('/') ? '' : '/'}business/`}>事業者情報</a>
-          <a href="https://github.com/165cm" target="_blank" rel="noopener">GitHub</a>
+          <a href={`${base}/#works`}>作品</a>
+          <a href={`${base}/#ai`}>AIの使い方</a>
+          <a href={`${base}/#services`}>できること</a>
+          <a href={`${base}/about`}>プロフィール</a>
+          <a class="nav-cta" href={`${base}/#consult`}>相談する</a>
         </nav>
       </div>
     </header>
+
+    <!-- ページ幅いっぱいの帯（トップのヒーローなど） -->
+    <slot name="band" />
 
     <main class="container">
       <slot />
@@ -40,8 +46,8 @@ const base = import.meta.env.BASE_URL;
 
     <footer class="site-footer">
       <div class="container">
-        <p>© 165cm — 趣味で作ったものを置いておく場所</p>
-        <p>有料サービスの販売：<a href={`${base}${base.endsWith('/') ? '' : '/'}business/`}>ぱぱぞんアプリ（PAPAZON APPS）</a></p>
+        <p>© {site.name} — {owner.name}（GitHub <a href="https://github.com/165cm" target="_blank" rel="noopener">@165cm</a>）</p>
+        <p>事業者情報・有料サービスの販売：<a href={`${base}/business/`}>ぱぱぞんアプリ（PAPAZON APPS）</a></p>
       </div>
     </footer>
   </body>

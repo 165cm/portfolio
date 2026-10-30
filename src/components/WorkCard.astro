@@ -1,0 +1,54 @@
+---
+// トップページの「実績」1件分。画面のスクリーンショット（または数値の図）と、
+// 見どころ・作れること・リンクを並べる。
+import type { App, Showcase } from '../data/apps';
+import { platforms } from '../data/apps';
+import type { Shot } from '../data/screenshots';
+interface Props {
+  app: App & { showcase: Showcase };
+  shot?: Shot; // 表示する画像（無ければ showcase.figures を図として出す）
+  publicUrl?: string;
+  reverse?: boolean;
+}
+const { app, shot, publicUrl, reverse = false } = Astro.props;
+const sc = app.showcase;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const href = `${base}/apps/${app.slug}`;
+const liveUrl = publicUrl ?? app.links.demo;
+---
+<article class:list={['work', { 'work--reverse': reverse }]}>
+  <div class:list={['work-visual', `work-visual--${shot ? shot.kind : 'figures'}`]}>
+    {shot ? (
+      <img src={`${base}/${shot.src}`} alt={shot.alt} loading="lazy" />
+    ) : (
+      <div class="figures">
+        <dl>
+          {sc.figures?.map((f) => (
+            <div>
+              <dt>{f.label}</dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+        {sc.figuresNote && <p class="figures-note">{sc.figuresNote}</p>}
+      </div>
+    )}
+  </div>
+  <div class="work-body">
+    <p class="work-proof">{sc.proof}</p>
+    <h3><span aria-hidden="true">{app.emoji}</span> {app.name}</h3>
+    <p class="work-tagline">{app.tagline}</p>
+    <ul class="work-points">
+      {sc.points.map((p) => <li>{p}</li>)}
+    </ul>
+    <ul class="work-skills" aria-label="この作品で使った技術・作れること">
+      {sc.skills.map((s) => <li>{s}</li>)}
+    </ul>
+    <div class="work-links">
+      {liveUrl && (
+        <a class="btn primary" href={liveUrl} target="_blank" rel="noopener">{platforms[app.platform].linkLabel} ↗</a>
+      )}
+      <a class="btn" href={href}>詳しく見る</a>
+    </div>
+  </div>
+</article>

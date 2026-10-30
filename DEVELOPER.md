@@ -1,4 +1,4 @@
-# 165cm の作りもの — Developer Guide
+# ぱぱぞん Apps with AI — Developer Guide
 
 > ユーザー向け説明は [README.md](./README.md) を参照。
 
@@ -7,8 +7,8 @@
 | レイヤ | 採用技術 |
 |---|---|
 | 言語 / フレームワーク | TypeScript / Astro 4 |
-| データ | `src/data/apps.ts`（静的データ） |
-| 外部API | なし |
+| データ | `src/data/apps.ts` / `site.ts` / `consult.ts` / `business.ts`（静的データ） |
+| 外部API | GitHub（ビルド時のみ：リポジトリ情報と作品のスクリーンショット） |
 | デプロイ | GitHub Pages（GitHub Actions） |
 
 ## セットアップ
@@ -33,9 +33,9 @@ npm run dev      # 開発サーバ (http://localhost:4321/portfolio)
 ```
 src/
   ├ pages/        ルーティング（index.astro / about.astro / apps/[slug].astro / business/）
-  ├ components/   UIコンポーネント（AppCard / CategorySection）
+  ├ components/   UIコンポーネント（WorkCard — 実績1件 / ConsultChat — 開発相談チャット）
   ├ layouts/      共通レイアウト（BaseLayout / BusinessLayout）
-  ├ data/         apps.ts — 全アプリ情報の単一ソース / business.ts — 事業者・有料サービス・価格
+  ├ data/         apps.ts — 全アプリ情報の単一ソース / site.ts — サイト名・AIの使い方 / consult.ts — 開発相談の窓口・できること・進め方 / business.ts — 事業者・有料サービス・価格
   └ styles/       global.css
 docs/
   └ standards/    全リポ共通の統一運用マニュアル
@@ -45,8 +45,33 @@ docs/
 
 ## アプリ情報の追加・編集
 
-`src/data/apps.ts` を編集するだけで、トップページのカードと詳細ページが両方更新されます。
+`src/data/apps.ts` を編集するだけで、トップページの実績と詳細ページが両方更新されます。
 新規アプリ追加時は `App` 型に従ってオブジェクトを追加してください。
+
+**サイトに表示されるのは `showcase` を持つ作品だけ**です（トップの実績・詳細ページとも）。
+`showcase` の無い作品はデータとして登録済みのまま非表示になります。載せ直す時は `showcase` を足します。
+
+- `order`: 表示順 / `proof`: 実績のひとこと / `points`: 見どころ / `skills`: 作れること
+- `image`: `public/works/` に置いたスクリーンショット（`imageKind` で縦長 `phone` / 横長 `wide`）。
+  作品リポジトリに `docs/portfolio/phone|wide.(webp|png|jpg)` があれば、ビルド時にそちらを優先して取り込む
+  （`src/data/screenshots.ts` → `src/pages/shots/[file].ts` が `/shots/<slug>.<拡張子>` として書き出す）。
+  ルールは [ops.md](./docs/standards/ops.md)「portfolio 用スクリーンショット」
+- 画像が無い作品は `figures`（数値）を図として表示する
+
+選定方針（2026-10）：直近1か月に更新した公開リポジトリから、趣味色の強いものを除いた精鋭のみを載せる。
+
+## トップページの画像と数字
+
+- ヒーロー画像：`public/hero.webp`（`.png` / `.jpg` も可）を置くとそれを表示。無ければ作品のスクリーンショットをパソコンとスマホの枠に入れて表示する
+- 「数字で見る実績」：開発歴・制作本数・有料版の利用者数は `src/data/consult.ts` の `career`（本人申告の数字。変わったらここを直す）
+- 「この1年の改善」：ビルド時に GitHub の検索 API で、この1年に取り込まれた自分のプルリクエスト数を数える（`src/data/activity.ts`）。取得できない時は数字なしの文言になる
+- 文言は「ITに詳しくない人が読んでもわかる」を基準にし、専門用語（PWA・E2E・CSV など）を使わない
+
+## 開発相談チャット
+
+`src/components/ConsultChat.astro`。決まった質問に答えてもらい、最後に相談内容をまとめたメールの下書き（`mailto:`）を作る自動応答。
+静的サイトでサーバーを持たないため、入力内容はどこにも送信しない。宛先・返信目安は `src/data/consult.ts`（宛先は事業者ページと同じ `business.email`）。
+質問や選択肢を変える時は、コンポーネント内の `stepsDef` と `kindReplies` を編集する。
 
 ## 事業者ページ（ぱぱぞんアプリ）
 
@@ -62,7 +87,7 @@ docs/
 ## デプロイ手順
 
 - ホスティング: GitHub Pages
-- トリガー: `main` への push で自動デプロイ（`.github/workflows/deploy.yml`）
+- トリガー: `main` への push と、毎日 3:17（日本時間）の定期ビルド（`.github/workflows/deploy.yml`）。定期ビルドで作品側のスクリーンショット・最終更新日を取り込む
 - 公開URL: https://165cm.github.io/portfolio/
 - **設定**: リポジトリ Settings → Pages → Source = **GitHub Actions**
 

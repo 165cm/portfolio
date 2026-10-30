@@ -86,6 +86,21 @@ export type App = {
   howTo?: string;
   tech: string[];
   links: { demo?: string; repo: string; blog?: string };
+  // トップページに「実績」として載せる作品だけが持つ情報。
+  // これが無い作品はサイト上では非表示（データは残しておき、載せ直す時に showcase を足す）。
+  showcase?: Showcase;
+};
+
+export type Showcase = {
+  order: number; // 表示順（小さいほど上）
+  image?: string; // public/ からのパス。無ければ figures を図として表示する
+  imageKind?: 'phone' | 'wide'; // 縦長のスマホ画面か、横長の画面・バナーか
+  imageAlt?: string;
+  figures?: { label: string; value: string }[]; // 画像の代わりに見せる数値
+  figuresNote?: string; // figures の出どころ
+  skills: string[]; // 発注者に伝わる「作れること」
+  points: string[]; // 作品の見どころ（3つ程度）
+  proof: string; // 実績を一言で（有償販売・テスト件数など）
 };
 
 export const apps: App[] = [
@@ -94,9 +109,9 @@ export const apps: App[] = [
     slug: 'aircon-repair',
     platform: 'site',
     date: '2024-05',
-    name: 'エアコン修理高等学校',
+    name: 'エアコン保健室',
     emoji: '❄️',
-    tagline: '症状から自分で原因を切り分けられる、エアコンの困った辞典',
+    tagline: '症状から「次の一手」を選べる、エアコントラブル対処ガイド',
     category: 'work',
     useCases: [
       'エアコンが冷えない・水漏れ・異音が出たとき',
@@ -104,9 +119,22 @@ export const apps: App[] = [
       '応急処置の方法や安全な補助グッズを知りたいとき',
     ],
     motivation: '夏にエアコンが止まると本当に困る。業者を呼ぶ前に自分で判断できる材料が欲しくて、症状別に整理した情報サイトを作りました。',
-    tech: ['Astro', 'GitHub Pages', 'GitHub Actions'],
+    tech: ['Astro', 'TypeScript', 'GitHub Actions', '独自ドメイン'],
+    showcase: {
+      order: 4,
+      image: 'works/aircon-repair.webp',
+      imageKind: 'wide',
+      imageAlt: 'エアコン保健室のメインビジュアル',
+      skills: ['情報サイト', '検索で見つけてもらう工夫', '質問に答えて診断', '専用アドレスでの運営'],
+      points: [
+        '「冷えない」「水が漏れる」など症状を選ぶと、まず危ないサインの確認、次に自分でできること、最後に修理か買い替えかを順番に案内',
+        '家電修理の現場で働く立場から、自分でやってよいこと・プロに任せるべきことをはっきり分けて説明',
+        'スマホでもサッと開ける軽いサイトに仕上げ、公開から運営まで自分で担当',
+      ],
+      proof: '修理の現場の知識をサイトに',
+    },
     links: {
-      demo: 'https://165cm.github.io/aircon-repair/',
+      demo: 'https://aircon-hokenshitsu.com/',
       repo: 'https://github.com/165cm/aircon-repair',
     },
   },
@@ -136,7 +164,7 @@ export const apps: App[] = [
     date: '2026-10',
     name: '第二種電気工事士 過去問サクサク道場',
     emoji: '⚡',
-    tagline: '第二種電気工事士の過去問250問を、スマホで1問1答。スキマ時間で学科試験対策',
+    tagline: '電気工事士の資格試験の過去問を、スマホで1問ずつ。スキマ時間で勉強できるアプリ',
     category: 'work',
     useCases: [
       '仕事が忙しく、まとまった勉強時間が取れないとき',
@@ -144,7 +172,20 @@ export const apps: App[] = [
       '配線図の小さな文字をスマホで拡大して確認したいとき',
     ],
     motivation: 'エアコン修理の繁忙期に第二種電気工事士の受験を決め、限られた時間で勉強するために自分用に作りました。これで学科試験に合格したので、同じように忙しい人向けに整えて公開しています。最新1回分は無料で、全5回分を使える有料プラン（販売：ぱぱぞんアプリ）は近日販売開始予定です。',
-    tech: ['React', 'Vite', 'Tailwind CSS', 'PWA', 'GitHub Pages'],
+    tech: ['React', 'Vite', 'Tailwind CSS', 'PWA', 'Firebase', 'Stripe'],
+    showcase: {
+      order: 1,
+      image: 'works/construction2nd.webp',
+      imageKind: 'phone',
+      imageAlt: '過去問サクサク道場の問題演習画面',
+      skills: ['スマホ向けの学習アプリ', 'ホーム画面に追加して使える', '苦手を自動で出し直す復習', '有料プランの設計'],
+      points: [
+        '過去問250問を1問ずつ解いて、すぐに正解がわかる。間違えた問題は自動で「復習リスト」へ',
+        '本番と同じ時間・問題数で挑戦できる模擬試験。細かい図面も指で拡大して見られる',
+        '作った本人がこのアプリで勉強して合格。その教材を、ほかの人も使える形に整えて公開',
+      ],
+      proof: '作った本人がこのアプリで合格',
+    },
     links: {
       demo: 'https://construction2nd.web.app/lp/',
       repo: 'https://github.com/165cm/construction2nd',
@@ -254,17 +295,30 @@ export const apps: App[] = [
     slug: 'matagochi',
     platform: 'webapp',
     date: '2026-06',
-    name: 'またごち',
+    name: 'リピごち',
     emoji: '🍚',
-    tagline: '家族の「また食べたい」を残す、ごはんメモ',
+    tagline: '「今日の夜ごはん、何にしよう」に1品だけ答えてくれる、献立の提案アプリ',
     category: 'family',
     useCases: [
+      '毎日の夜ごはんを考えるのがしんどいとき',
       'SNSで見つけたレシピ動画をあとから探し直したいとき',
-      '家族ごとの「また食べたい」度を残したいとき',
-      'レシピアプリほど重くない、家庭用のごはんメモを試したいとき',
+      '家族ごとの「また食べたい」を残して、次の献立に生かしたいとき',
     ],
     motivation: 'SNSで見つけたレシピ動画は、後から探すのが意外と大変。家族の反応まで一緒に残せれば、次に作る判断が楽になると思って作りました。',
-    tech: ['HTML/JavaScript', 'GitHub Pages', 'localStorage'],
+    tech: ['HTML/JavaScript', 'PWA', 'Gemini API', 'Cloud Run', 'GitHub Pages'],
+    showcase: {
+      order: 5,
+      image: 'works/matagochi.webp',
+      imageKind: 'phone',
+      imageAlt: 'リピごちの「今日」画面',
+      skills: ['AIで文章・画像を読み取る', 'サーバーとの連携', 'ホーム画面に追加して使える', 'SNSからの共有に対応'],
+      points: [
+        '好みや調理時間、家にある調味料から、夜ごはんを1日1品提案。買い物メモも自動で作成',
+        'レシピ動画の説明文やスクリーンショットから、AI が材料と作り方を読み取ってメモに',
+        'YouTube や TikTok で見つけたレシピも、スマホの「共有」ボタンからそのまま保存',
+      ],
+      proof: 'AI を毎日の家事に役立てた例',
+    },
     links: {
       demo: 'https://165cm.github.io/matagochi/',
       repo: 'https://github.com/165cm/matagochi',
@@ -409,12 +463,48 @@ export const apps: App[] = [
 
   // ── 投資・お金 ───────────────────────────────────────────
   {
+    slug: 'uberoi',
+    platform: 'webapp',
+    date: '2026-10',
+    name: 'デリ勘',
+    emoji: '🚲',
+    tagline: '自転車でのフードデリバリー副業で「結局いくら残ったか」がわかる、お金の記録アプリ',
+    category: 'money',
+    useCases: [
+      'シェアサイクル代や装備代を引いた、本当の時給を知りたいとき',
+      '今日はもう少し続けるか、帰るかを数字で決めたいとき',
+      '電動アシスト自転車などへの投資が、いつ回収できるかを見たいとき',
+    ],
+    motivation: '売上の数字だけ見ていると、レンタル代や装備代を引いた「手元に残る額」がわからない。出発から帰宅まで記録すれば、本当の時給と投資の回収率が出るようにしました。',
+    tech: ['React', 'TypeScript', 'Vite', 'IndexedDB（Dexie）', 'PWA', 'Vitest', 'Playwright'],
+    links: {
+      demo: 'https://165cm.github.io/UbeROI/',
+      repo: 'https://github.com/165cm/UbeROI',
+    },
+    showcase: {
+      order: 2,
+      figures: [
+        { label: 'この日の売上', value: '7,180円' },
+        { label: 'レンタル代などを引いて手元に', value: '5,220円' },
+        { label: '本当の時給', value: '1,740円' },
+      ],
+      figuresNote: '3時間働いた日の計算例（自転車のレンタル代1,760円などを差し引き）',
+      skills: ['記録の集計・分析', '計算ミスの自動チェック', '電波がなくても使える', 'データの書き出し・復元'],
+      points: [
+        '家を出てから帰るまでを記録するだけで、レンタル代や道具代を引いた「本当の時給」を計算',
+        '電波が届かない場所でも記録でき、記録はスマホの中だけに保存（外に送らない）',
+        'お金の計算を間違えないよう、直すたびに計算結果を自動で確かめる仕組みを用意',
+      ],
+      proof: '「売上」ではなく「手元に残るお金」を見える化',
+    },
+  },
+  {
     slug: 'firstrade-calculator-app',
     platform: 'webapp',
     date: '2024-03',
     name: 'Firstrade 確定申告支援ツール',
     emoji: '🇺🇸',
-    tagline: '米国証券Firstradeの取引データを、日本円で損益計算',
+    tagline: 'アメリカの証券会社で株を持つ人の、確定申告の計算をラクにするツール',
     category: 'money',
     useCases: [
       '米国株を持っていて確定申告が必要な人',
@@ -422,8 +512,22 @@ export const apps: App[] = [
       '為替レートを毎回手計算するのが面倒なとき',
     ],
     motivation: '自分自身がFirstradeで取引していて、毎年の確定申告が地獄だったので作りました。プレミアム版はGumroadで販売中。',
-    tech: ['TypeScript', 'Gumroad'],
+    tech: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Gumroad'],
+    showcase: {
+      order: 3,
+      image: 'works/firstrade.webp',
+      imageKind: 'wide',
+      imageAlt: 'Firstrade 確定申告支援ツールの配当金明細画面',
+      skills: ['手作業の自動化', 'ファイルの読み込み・集計', 'グラフで見える化', '有料版の販売'],
+      points: [
+        '証券会社のサイトから取引の記録をダウンロードして読み込むだけで、配当金や売買のもうけを日本円で計算',
+        '面倒な「その日のドル円レート」での換算も自動。月ごとのグラフで、ひと目でわかる',
+        'ブログ経由で有料版を個人販売し、100人以上に利用されている',
+      ],
+      proof: '有料版を100人以上が利用',
+    },
     links: {
+      demo: 'https://firstrade.nomadkazoku.com/',
       repo: 'https://github.com/165cm/firstrade-calculator-app',
     },
   },
@@ -652,3 +756,8 @@ export const apps: App[] = [
 export const appsByCategory = (cat: Category) => apps.filter((a) => a.category === cat);
 
 export const appsByPlatform = (p: Platform) => apps.filter((a) => a.platform === p);
+
+// サイトに載せる作品（showcase を持つもの）を表示順に並べたもの
+export const featuredApps = apps
+  .filter((a): a is App & { showcase: Showcase } => Boolean(a.showcase))
+  .sort((a, b) => a.showcase.order - b.showcase.order);

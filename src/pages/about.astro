@@ -1,41 +1,59 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-const base = import.meta.env.BASE_URL;
+import { business, owner } from '../data/business';
+import { consult, career } from '../data/consult';
+import { site, aiTeam } from '../data/site';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<BaseLayout title="このサイトについて — 165cm の作りもの">
+<BaseLayout title={`プロフィール — ${site.name}`}>
   <article class="about-page">
-    <h1>このサイトについて</h1>
+    <p class="sec-label">profile</p>
+    <h1>プロフィール</h1>
 
-    <p>
-      ここは「165cm」が趣味で作っているアプリやツールを並べておく場所です。
-      就職活動用のポートフォリオではなく、
-      <strong>「こういうの作って遊んでます」</strong>を気軽に見てもらうためのページです。
-    </p>
+    <div class="profile">
+      <img class="avatar" src={`${base}/${owner.image}`} alt={owner.name} width="112" height="112" />
+      <div>
+        <p class="name">{owner.name}</p>
+        <p class="role">{owner.role}</p>
+        <p class="handle">GitHub：<a href="https://github.com/165cm" target="_blank" rel="noopener">@165cm</a></p>
+      </div>
+    </div>
+    {owner.bio.map((t) => <p>{t}</p>)}
+    <p>個人でのアプリ開発は{career.years}。自分用も含めて、これまで{career.tools}の道具を作ってきました。</p>
 
-    <h2>作っているもの</h2>
-    <p>
-      ジャンルは色々で、自分の仕事や家庭で「あったら便利」と感じたものを形にしています。
-    </p>
+    <h2>大事にしていること</h2>
     <ul>
-      <li>🔧 仕事の現場で使うツール（ルート最適化、在庫検索、エアコン情報サイト 等）</li>
-      <li>👨‍👩‍👧 家族・育児向けアプリ（家族で観る映画レビュー、好き嫌い克服AI 等）</li>
-      <li>💴 お金まわりのツール（米国株の確定申告計算、投資シミュレーター）</li>
-      <li>🧩 ちょっと便利なChrome拡張やAIツール</li>
+      <li><strong>現場で本当に使えること。</strong>自分が毎日使う道具として作り、使いながら直しています。</li>
+      <li><strong>小さく作って、早く見せること。</strong>最初から全部を作らず、動くものを触ってもらって育てます。</li>
+      <li><strong>作って終わりにしないこと。</strong>公開したあとの運営や、有料版の販売・お問い合わせ対応まで自分で行っています。</li>
+      <li><strong>AI を上手に使うこと。</strong>{aiTeam.map((a) => a.name).join('・')} を役割ごとに使い分け、ひとりでも早く・丁寧に作れるようにしています。何を作るかを決めるのと、最後に自分で触って確かめるのは私の仕事です。</li>
     </ul>
 
-    <h2>なぜ作るのか</h2>
+    <h2>このサイトについて</h2>
     <p>
-      「不便だな」と思った瞬間に、自分の手で形にできるのが楽しいから、というのが一番大きいです。
-      最近はAIの力も借りて、昔よりずっと速く・気軽に作れるようになりました。
-      作ったものをそのまま自分の生活で使えるのが、何より気持ちいいです。
+      「{site.name}」は、AI と一緒に作ったアプリを紹介するサイトです。直近で手を入れている作品の中から、実際に使われているものを選んで載せています。
+      ソースコードは GitHub（アカウント名 <a href="https://github.com/165cm" target="_blank" rel="noopener">@165cm</a>）で公開しています。
+    </p>
+    <p>
+      有料サービスの販売は、個人事業「<a href={`${base}/business/`}>{business.name}</a>」として行っています。
     </p>
 
     <h2>連絡先</h2>
     <p>
-      ソースコードはすべて <a href="https://github.com/165cm" target="_blank" rel="noopener">GitHub (@165cm)</a>
-      に置いてあります。気が向いたら覗いてみてください。
+      開発のご相談は、<a href={`${base}/#consult`}>相談チャット</a>または
+      <a href={`mailto:${consult.email}`}>{consult.email}</a> へどうぞ。{consult.replyNote}
     </p>
-
-    <p style="margin-top:30px;"><a href={base}>← アプリ一覧へ戻る</a></p>
   </article>
 </BaseLayout>
+
+<style>
+  .about-page h1 { margin-top: 4px; }
+  .about-page h2 { margin-top: 40px; font-size: 1.2rem; }
+  .about-page li { margin: 6px 0; }
+  .about-page a { word-break: break-all; }
+  .profile { display: flex; align-items: center; gap: 18px; margin: 8px 0 20px; }
+  .avatar { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; flex: none; }
+  .name { margin: 0; font-weight: 700; font-size: 1.15rem; }
+  .role { margin: 0; color: var(--ink-soft); font-size: 0.9rem; }
+  .handle { margin: 0; font-family: var(--mono); font-size: 0.82rem; }
+</style>

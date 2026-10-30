@@ -1,184 +1,419 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import GroupSection from '../components/GroupSection.astro';
-import { apps, appsByCategory, appsByPlatform, categories, platforms } from '../data/apps';
-import type { App } from '../data/apps';
+import WorkCard from '../components/WorkCard.astro';
+import ConsultChat from '../components/ConsultChat.astro';
+import { featuredApps } from '../data/apps';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { consult, career, services, fits, steps } from '../data/consult';
+import { fetchMergedPrCountLastYear } from '../data/activity';
+import { owner } from '../data/business';
+import { site, aiTeam, aiMerits } from '../data/site';
 import { fetchRepoMeta } from '../data/repoUpdates';
+import { resolveShots } from '../data/screenshots';
 
-const cats = Object.keys(categories) as (keyof typeof categories)[];
-const plats = Object.keys(platforms) as (keyof typeof platforms)[];
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-// ビルド時にリポジトリのメタ情報（最終更新日 / About の Website）を取得する。
-const repoMeta = await fetchRepoMeta(apps);
-
-// 「最近の更新順」: リポジトリの pushed_at。取得不可なら date にフォールバック。
-const lastUpdated = (a: App) => repoMeta[a.slug]?.pushedAt ?? a.date;
-// 公開中のものへのリンク: GitHub About の Website。無ければ links.demo にフォールバック。
-// ただし Website がこのポートフォリオ自身を指している場合（外部に公開ページを
-// 持たない作品で、About にポートフォリオの詳細ページを入れている場合）は、
-// 「詳しく見る」と同じ行き先になってしまうため採用しない。
+// ビルド時にリポジトリの About の Website を取得し、公開ページへのリンクに使う。
+// 取得できない場合や、Website がこのポートフォリオ自身を指す場合は links.demo を使う。
+const repoMeta = await fetchRepoMeta(featuredApps);
 const isSelfUrl = (url: string) => url.includes('165cm.github.io/portfolio');
-const publicUrlOf = (a: App) => {
-  const homepage = repoMeta[a.slug]?.homepage;
-  return homepage && !isSelfUrl(homepage) ? homepage : a.links.demo;
+const publicUrlOf = (slug: string, demo?: string) => {
+  const homepage = repoMeta[slug]?.homepage;
+  return homepage && !isSelfUrl(homepage) ? homepage : demo;
 };
-const publicUrls = Object.fromEntries(
-  apps.map((a) => [a.slug, publicUrlOf(a)]).filter(([, url]) => url)
-) as Record<string, string>;
 
-const sortedByDate = [...apps].sort((a, b) => {
-  const da = lastUpdated(a);
-  const db = lastUpdated(b);
-  return da < db ? 1 : da > db ? -1 : a.name.localeCompare(b.name);
-});
-// 年ごとにまとめる（sortedByDate が新しい順なので years も新しい順になる）
-const years = [...new Set(sortedByDate.map((a) => lastUpdated(a).slice(0, 4)))];
+const nameOf = (slug: string) => featuredApps.find((a) => a.slug === slug)?.name;
+// 作品の画像（作品リポジトリの docs/portfolio/ にあれば最新のものを使う）
+const shots = await resolveShots(featuredApps);
 
-const techCount = new Set(apps.flatMap((a) => a.tech)).size;
-const demoCount = Object.keys(publicUrls).length;
+// ヒーローの画像。public/hero.(webp|png|jpg) を置けばそれを使い、無ければ
+// 作品のスクリーンショットをパソコンとスマホの枠に入れて見せる
+const heroFile = ['webp', 'png', 'jpg']
+  .map((ext) => `hero.${ext}`)
+  .find((f) => existsSync(join(process.cwd(), 'public', f)));
+const wideShot = featuredApps.map((a) => shots[a.slug]).find((s) => s?.kind === 'wide');
+const phoneShot = featuredApps.map((a) => shots[a.slug]).find((s) => s?.kind === 'phone');
+
+// この1年の改善の回数（取り込んだプルリクエスト数）。取れなければ数字なしで見せる
+const prCount = await fetchMergedPrCountLastYear();
+
+// 数字の実績。ITに詳しくない人が読んでもわかる言葉で説明を付ける
+const proofs = [
+  {
+    num: career.years,
+    title: '個人でのアプリ開発',
+    text: `自分用も含めて、これまで${career.tools}の道具を作ってきました。`,
+  },
+  {
+    num: `${featuredApps.length}本`,
+    title: '今月も開発中のアプリ',
+    text: 'ここで紹介しているアプリは、どれも今月も手を入れているものです。作って終わりにしません。',
+  },
+  {
+    num: career.paidUsers,
+    title: '有料版の利用者',
+    text: '確定申告のツールは、ブログ経由で有料版を個人販売し、たくさんの方に使っていただいています。',
+  },
+  prCount
+    ? {
+        num: `${prCount}回`,
+        title: 'この1年の改善',
+        text: '使いにくい所を直す、機能を足す。AI のチェックも通しながら、小さな改善をコツコツ積み重ねています。',
+      }
+    : {
+        num: '日々',
+        title: 'コツコツ改善',
+        text: '使いにくい所を直す、機能を足す。小さな改善を1つずつ、コツコツ積み重ねています。',
+      },
+];
 ---
-<BaseLayout title="165cm の作りもの — 趣味で作ったアプリたち">
-  <section class="hero">
-    <div class="emoji">🛠️</div>
-    <h1>日常の「ちょっと困った」を、自分で作って解決しています</h1>
-    <p class="lead">
-      仕事道具、家族向けアプリ、Chrome拡張まで。
-      趣味で作ったアプリをここに並べています。
+<BaseLayout title={`${site.name} — ${site.tagline}`}>
+  <section class:list={['hero-band', { 'hero-band--image': heroFile }]} slot="band">
+    <div class="container hero">
+      <div class="hero-text">
+        <p class="eyebrow">{site.name}</p>
+        <h1><span class="nw">「こんなのあったらいいな」を、</span><wbr /><span class="nw">AIと一緒にアプリに。</span></h1>
+        <p class="lead">
+          個人開発者の{owner.name}です。本業のかたわら、{career.years}アプリを作ってきました（自分用も含めて{career.tools}）。
+          いまは{aiTeam.length}つの AI を相棒に、仕事の面倒な作業を減らす道具や、毎日の家事をラクにするアプリを作っています。
+        </p>
+        <p class="lead">「こんなことできる？」という小さなご相談から、副業として少しだけお受けしています。</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#consult">気軽に相談してみる</a>
+          <a class="btn btn--on-dark" href="#works">作ったものを見る</a>
+        </div>
+        <p class="ai-chips">
+          <span class="ai-chips-label">一緒に作っている AI</span>
+          {aiTeam.map((a) => <a class="ai-chip" href="#ai">{a.name}</a>)}
+        </p>
+      </div>
+      {!heroFile && (
+        <div class="devices" aria-hidden="true">
+          {wideShot && (
+            <div class="laptop">
+              <div class="laptop-screen"><img src={`${base}/${wideShot.src}`} alt="" /></div>
+              <div class="laptop-base"></div>
+            </div>
+          )}
+          {phoneShot && <img class="phone" src={`${base}/${phoneShot.src}`} alt="" />}
+        </div>
+      )}
+    </div>
+    {heroFile && <img class="hero-bg" src={`${base}/${heroFile}`} alt="机の上のパソコンとスマホ。画面にはグラフやチェックの付いたアプリが映っている" />}
+  </section>
+
+  <section class="section proofs-section">
+    <p class="sec-label">numbers</p>
+    <h2>数字で見る実績</h2>
+    <ul class="proofs">
+      {proofs.map((p) => (
+        <li>
+          <p class="proof-num">{p.num}</p>
+          <h3>{p.title}</h3>
+          <p>{p.text}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section id="works" class="section">
+    <p class="sec-label">works</p>
+    <h2>最近作ったもの</h2>
+    <p class="section-lead">どれも自分や家族、身近な人の「困った」から生まれ、AI と一緒に形にして、実際に使われているアプリです。</p>
+    <div class="works">
+      {featuredApps.map((app, i) => (
+        <WorkCard app={app} shot={shots[app.slug]} publicUrl={publicUrlOf(app.slug, app.links.demo)} reverse={i % 2 === 1} />
+      ))}
+    </div>
+  </section>
+
+  <section id="ai" class="section">
+    <p class="sec-label">with ai</p>
+    <h2>AI と一緒に作る、ということ</h2>
+    <p class="section-lead">
+      AI に丸投げするのではなく、得意なことに合わせて役割を分け、小さなチームのように作っています。
+      何を作るかを決めるのと、最後に自分で触って確かめるのは、人である私の仕事です。
+    </p>
+    <ul class="team">
+      <li class="team-member team-member--human">
+        <p class="team-role">決める係・確かめる係</p>
+        <h3>{owner.name}（人）</h3>
+        <p>お話を聞いて何を作るか決め、AI に指示を出します。できあがったものは自分で触って確かめてからお渡しします。</p>
+      </li>
+      {aiTeam.map((a) => (
+        <li class="team-member">
+          <p class="team-role">{a.role}</p>
+          <h3>{a.name}</h3>
+          <p>{a.text}</p>
+        </li>
+      ))}
+    </ul>
+    <h3 class="sub-h">ご相談いただく方にとっての良いところ</h3>
+    <ul class="merits">
+      {aiMerits.map((m) => (
+        <li>
+          <h4>{m.title}</h4>
+          <p>{m.text}</p>
+        </li>
+      ))}
+    </ul>
+    <p class="ai-note">
+      🔒 お預かりしたデータや社外秘の情報は、ご了承をいただかないまま AI に入力することはありません。
     </p>
   </section>
 
-  <div class="intro-card">
-    <h2>はじめまして、165cm です</h2>
-    <p>身の回りで「これあったら便利だな」と思ったものを、ちょこちょこ自分で作って遊んでいます。</p>
-    <p>誰かの役に立てば嬉しいし、立たなくても作るのが楽しいので続いています。</p>
-    <p class="meta">
-      <a href="https://github.com/165cm" target="_blank" rel="noopener">GitHub →</a>
+  <section id="services" class="section">
+    <p class="sec-label">services</p>
+    <h2>お手伝いできること</h2>
+    <div class="services">
+      {services.map((s) => (
+        <div class="service">
+          <div class="service-icon" aria-hidden="true">{s.icon}</div>
+          <h3>{s.title}</h3>
+          <p>{s.text}</p>
+          {nameOf(s.example) && <a href={`${base}/apps/${s.example}`}>例：{nameOf(s.example)} →</a>}
+        </div>
+      ))}
+    </div>
+    <div class="fits">
+      <div class="fit fit--good">
+        <h3>こんなご相談に向いています</h3>
+        <ul>{fits.good.map((f) => <li>{f}</li>)}</ul>
+      </div>
+      <div class="fit fit--bad">
+        <h3>お受けしにくいもの</h3>
+        <ul>{fits.bad.map((f) => <li>{f}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="flow" class="section">
+    <p class="sec-label">flow</p>
+    <h2>進め方</h2>
+    <ol class="flow">
+      {steps.map((s, i) => (
+        <li>
+          <span class="flow-num">{String(i + 1).padStart(2, '0')}</span>
+          <h3>{s.title}</h3>
+          <p>{s.text}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section id="consult" class="section consult">
+    <p class="sec-label">contact</p>
+    <h2>気軽にご相談ください</h2>
+    <p class="section-lead">
+      「こんなことできる？」くらいの段階で大丈夫です。下の質問に答えていくと、相談のメール文が自動でできあがります。
+      直接メールする場合は <a href={`mailto:${consult.email}`}>{consult.email}</a> へどうぞ。
     </p>
-  </div>
-
-  <!-- 一覧の並べ方を切り替えるトグル -->
-  <div class="view-switcher" role="tablist" aria-label="一覧の並べ方">
-    <span class="view-switcher-label">並べ方：</span>
-    <button class="view-btn is-active" type="button" role="tab" aria-selected="true" data-view="category">
-      🗂️ 用途
-    </button>
-    <button class="view-btn" type="button" role="tab" aria-selected="false" data-view="platform">
-      🧱 プラットフォーム
-    </button>
-    <button class="view-btn" type="button" role="tab" aria-selected="false" data-view="date">
-      🗓️ 最近の更新順
-    </button>
-  </div>
-
-  <!-- 用途別（既存の並べ方） -->
-  <div class="view" data-view="category">
-    {cats.map((cat) => (
-      <GroupSection
-        id={cat}
-        emoji={categories[cat].emoji}
-        label={categories[cat].label}
-        description={categories[cat].description}
-        apps={appsByCategory(cat)}
-        publicUrls={publicUrls}
-      />
-    ))}
-  </div>
-
-  <!-- プラットフォーム別 -->
-  <div class="view" data-view="platform" hidden>
-    {plats.map((p) => {
-      const list = appsByPlatform(p);
-      return list.length > 0 && (
-        <GroupSection
-          emoji={platforms[p].emoji}
-          label={platforms[p].label}
-          description={platforms[p].description}
-          apps={list}
-          publicUrls={publicUrls}
-        />
-      );
-    })}
-  </div>
-
-  <!-- 新しい順（年ごと） -->
-  <div class="view" data-view="date" hidden>
-    {years.map((year) => (
-      <GroupSection
-        emoji="🗓️"
-        label={`${year}年`}
-        apps={sortedByDate.filter((a) => lastUpdated(a).startsWith(year))}
-        publicUrls={publicUrls}
-      />
-    ))}
-  </div>
-
-  <section class="stats">
-    <div class="item">
-      <div class="num">{apps.length}</div>
-      <div class="label">公開アプリ</div>
-    </div>
-    <div class="item">
-      <div class="num">{demoCount}</div>
-      <div class="label">触れるデモ</div>
-    </div>
-    <div class="item">
-      <div class="num">{techCount}</div>
-      <div class="label">使った技術</div>
-    </div>
+    <ConsultChat />
   </section>
 </BaseLayout>
 
 <style>
-  .view-switcher {
-    display: flex;
-    flex-wrap: wrap;
+  .hero-band {
+    background-color: var(--dark);
+    background-image:
+      linear-gradient(var(--dark-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--dark-line) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: -1px -1px;
+    color: #e6edf6;
+    border-bottom: 1px solid var(--dark-line);
+  }
+  .hero {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 40px;
     align-items: center;
-    gap: 0.5rem;
-    margin: 2rem 0 1.5rem;
+    padding-top: 72px;
+    padding-bottom: 72px;
   }
-  .view-switcher-label {
-    font-size: 0.9rem;
-    color: #7a6a55;
-    margin-right: 0.25rem;
+  .eyebrow {
+    margin: 0 0 14px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--accent-bright);
   }
-  .view-btn {
-    font: inherit;
-    font-size: 0.95rem;
-    padding: 0.45rem 0.95rem;
-    border: 1px solid #e0d4c0;
-    border-radius: 999px;
-    background: #fff;
-    color: #5a4a35;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, color 0.15s;
-  }
-  .view-btn:hover {
-    border-color: #c9b48f;
-  }
-  .view-btn.is-active {
-    background: #5a3a1c;
-    border-color: #5a3a1c;
+  .hero h1 {
+    font-size: clamp(1.3rem, 5.2vw, 2.3rem);
+    line-height: 1.4;
+    margin: 0 0 18px;
     color: #fff;
   }
-  .view[hidden] {
-    display: none;
+  .nw { display: inline-block; }
+  .lead { color: #a9b6c8; font-size: 1.02rem; margin: 0 0 8px; max-width: 34em; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+  .btn--on-dark { color: #e6edf6; border-color: #4a5a75; }
+  .btn--on-dark:hover { background: #e6edf6; color: var(--dark); }
+
+  /* ヒーロー画像は左側が無地なので、帯の右側に敷いて左に文字を置く */
+  .hero-band { position: relative; overflow: hidden; }
+  .hero-band--image { background: #0e182b; }
+  .hero-band--image .hero { grid-template-columns: minmax(0, 600px); position: relative; z-index: 1; }
+  .hero-band--image .lead { color: #c3cede; }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: right center;
+  }
+  .hero-band--image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, #0e182b 38%, rgba(14, 24, 43, 0.85) 52%, rgba(14, 24, 43, 0.25) 66%, transparent 76%);
+  }
+  .devices { position: relative; padding: 0 0 40px; }
+  .laptop { width: 92%; }
+  .laptop-screen {
+    background: #1b2333;
+    border: 10px solid #1b2333;
+    border-bottom-width: 14px;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+    aspect-ratio: 16 / 10.5;
+  }
+  .laptop-screen img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .laptop-base {
+    height: 12px;
+    margin: 0 -6%;
+    background: linear-gradient(#c9d1dc, #8e99a8);
+    border-radius: 0 0 12px 12px;
+  }
+  .phone {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 30%;
+    border: 5px solid #05070c;
+    border-radius: 18px;
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.45);
+  }
+
+  .section { padding: 80px 0 0; }
+  .section h2 { margin: 4px 0 10px; font-size: clamp(1.4rem, 3vw, 1.85rem); }
+  .section-lead { color: var(--ink-soft); margin: 0 0 32px; max-width: 46em; }
+
+  .proofs {
+    list-style: none;
+    margin: 24px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .proofs li {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .proof-num { margin: 0; font-size: 1.9rem; font-weight: 700; line-height: 1.25; color: var(--accent-dark); }
+  .proofs h3 { margin: 6px 0 6px; font-size: 1rem; }
+  .proofs li > p:last-child { margin: 0; font-size: 0.86rem; color: var(--ink-soft); line-height: 1.7; }
+
+  .ai-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 22px 0 0; }
+  .ai-chips-label { font-size: 0.8rem; color: #8fa0b8; margin-right: 4px; }
+  .ai-chip {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: 1px solid #2f4a5a;
+    background: rgba(52, 211, 153, 0.08);
+    color: var(--accent-bright);
+  }
+  .ai-chip:hover { text-decoration: none; background: rgba(52, 211, 153, 0.18); }
+
+  .team { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .team-member {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .team-member--human { background: var(--dark); border-color: var(--dark); color: #e6edf6; }
+  .team-role { margin: 0; font-size: 0.78rem; font-weight: 700; color: var(--accent); }
+  .team-member--human .team-role { color: var(--accent-bright); }
+  .team-member h3 { margin: 4px 0 6px; font-family: var(--mono), 'Noto Sans JP', sans-serif; font-size: 1.05rem; }
+  .team-member > p:last-child { margin: 0; font-size: 0.88rem; color: var(--ink-soft); }
+  .team-member--human > p:last-child { color: #c3cede; }
+  .sub-h { margin: 36px 0 12px; font-size: 1.05rem; }
+  .merits { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .merits li { background: var(--good-bg); border: 1px solid #c4e8d6; border-radius: var(--radius); padding: 18px 20px; }
+  .merits h4 { margin: 0 0 4px; font-size: 1rem; color: var(--accent-dark); }
+  .merits p { margin: 0; font-size: 0.88rem; }
+  .ai-note { margin: 16px 0 0; font-size: 0.88rem; color: var(--ink-soft); }
+
+  .works { display: flex; flex-direction: column; gap: 28px; }
+
+  .services { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .service {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .service-icon { font-size: 1.4rem; }
+  .service h3 { margin: 8px 0 6px; font-size: 1.02rem; }
+  .service p { margin: 0 0 12px; font-size: 0.9rem; color: var(--ink-soft); flex-grow: 1; }
+  .service a { font-size: 0.85rem; font-weight: 500; }
+
+  .fits { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .fit { border-radius: var(--radius); padding: 18px 22px; border: 1px solid var(--border); }
+  .fit h3 { margin: 0 0 8px; font-size: 0.98rem; }
+  .fit ul { margin: 0; padding-left: 1.2em; font-size: 0.9rem; }
+  .fit--good { background: var(--good-bg); border-color: #c4e8d6; }
+  .fit--bad { background: var(--surface-2); color: var(--ink-soft); }
+
+  .flow {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .flow li {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .flow-num { font-family: var(--mono); font-weight: 600; font-size: 0.9rem; color: var(--accent); }
+  .flow h3 { margin: 6px 0 4px; font-size: 1rem; }
+  .flow p { margin: 0; font-size: 0.88rem; color: var(--ink-soft); }
+
+  .consult .section-lead a { word-break: break-all; }
+
+  /* 画像に文字が重なる幅では、文字の下に画像を並べる */
+  @media (max-width: 1180px) {
+    .hero-band--image .hero { grid-template-columns: 1fr; padding-bottom: 28px; }
+    .hero-band--image::after { display: none; }
+    .hero-bg { position: static; display: block; height: auto; max-height: 440px; aspect-ratio: 16 / 7; }
+  }
+  @media (max-width: 860px) {
+    .hero-bg { aspect-ratio: 16 / 9; }
+    .hero { grid-template-columns: 1fr; padding-top: 48px; padding-bottom: 48px; }
+
+    .proofs { grid-template-columns: 1fr 1fr; }
+    .team { grid-template-columns: 1fr 1fr; }
+    .merits { grid-template-columns: 1fr; }
+    .services { grid-template-columns: 1fr 1fr; }
+    .flow { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .proofs, .services, .fits, .flow, .team { grid-template-columns: 1fr; }
+    .section { padding-top: 64px; }
   }
 </style>
-
-<script>
-  const buttons = document.querySelectorAll<HTMLButtonElement>('.view-btn');
-  const views = document.querySelectorAll<HTMLElement>('.view');
-  buttons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const target = btn.dataset.view;
-      buttons.forEach((b) => {
-        const active = b === btn;
-        b.classList.toggle('is-active', active);
-        b.setAttribute('aria-selected', String(active));
-      });
-      views.forEach((v) => {
-        v.hidden = v.dataset.view !== target;
-      });
-    });
-  });
-</script>
