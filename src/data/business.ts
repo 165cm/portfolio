@@ -16,7 +16,7 @@ export interface Service {
   summary: string;
   features: string[];
   url: string;
-  status: string; // いまの販売状況（例：近日販売開始）
+  status: string; // いまの販売状況（例：販売中）
   statusNote: string; // いまの状態の説明
   free: string; // 無料で使える範囲
   paid: string; // 有料プランで使える範囲
@@ -30,7 +30,7 @@ export const business = {
   description: '暮らしや仕事に役立つWebアプリ（資格学習など）の企画・開発・販売',
   email: 'papazon.service.desk@outlook.jp',
   established: '2026年',
-  updated: '2026年10月29日',
+  updated: '2026年11月2日',
   periodNote: '期間の終わりにあたる日付がない月は、その月の末日23:59まで（日本時間）です。',
   replyTarget: '土日祝を除く原則2営業日以内に、最初のご返信をすることを目標としています（解決までの期限ではありません）。',
 };
@@ -64,8 +64,8 @@ export const services: Service[] = [
       '要点チートシート16種・オリジナルの解説',
     ],
     url: 'https://construction2nd.web.app/lp/',
-    status: '近日販売開始',
-    statusNote: '有料プランは近日販売開始予定です（購入の受付はまだ行っていません）。最新1回分（50問）は、いまもログインなしで無料でお使いいただけます。',
+    status: '販売中',
+    statusNote: '有料プランを販売中です。最新1回分（50問）はログインなしで無料、全5回分はアプリでGoogleアカウントにログインしてプランを購入するとご利用いただけます。',
     free: '最新1回分（50問）は、ログインなしで無料で使えます。',
     paid: '現収録の5回分・250問の問題・解説・復習・模擬試験が使えます（Googleアカウントでのログインが必要）。',
     screenshots: [

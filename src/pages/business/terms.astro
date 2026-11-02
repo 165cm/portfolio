@@ -8,7 +8,6 @@ const b = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/business`;
     <h1>利用規約</h1>
     <p class="lead">
       この利用規約（以下「本規約」）は、{business.name}（以下「当方」）が提供する「第二種電気工事士 過去問サクサク道場」（以下「本サービス」）の利用条件を定めるものです。
-      有料プランは現在、販売開始に向けて準備中です。本規約の有料プランに関する部分は、販売開始後に適用します。
     </p>
 
     <section>
@@ -76,6 +75,6 @@ const b = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/business`;
       <p>お問い合わせは <a href={`mailto:${business.email}`}>{business.email}</a> で受け付けます。{business.replyTarget}カード番号・セキュリティコード・パスワードは送らないでください。</p>
       <p>重要な規約の変更は、原則として適用日の30日前までに、変更内容と適用日をサイトでお知らせします。法令上必要な同意は別途いただきます。購入済みの条件を、さかのぼって変更することはありません。</p>
     </section>
-    <p class="updated">最終更新：{business.updated}（有料プランに関する部分は販売開始日から適用）</p>
+    <p class="updated">最終更新：{business.updated}</p>
   </article>
 </BusinessLayout>
