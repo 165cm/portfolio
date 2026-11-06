@@ -1,0 +1,137 @@
+---
+// 開発者本人の AI ボイス（ElevenLabs）のサンプル集。音声は public/voice/（ElevenLabs eleven_v4 で作成）
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { owner } from '../data/business';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const shareUrl = 'https://elevenlabs.io/app/voice-lab/share/95c29575c73c72356378a0eb9b6372a51672ebfad21f5100ac9fe8587b8d529e/2UGDsJpBJAiAlF0jQQ7x';
+
+type Sample = { file: string; title: string; text: string; note?: string };
+
+const uses: Sample[] = [
+  { file: 'use-explainer', title: 'アプリの解説動画', text: '選択肢をタップすると、すぐに正解が分かって、解説の表で根拠まで確認できます。', note: '実際に「電工2種サクサク道場」の紹介動画で使っています。' },
+  { file: 'use-quiz', title: '一問一答・学習コンテンツ', text: '問題です。消費電力300ワットの電熱器を、2時間使ったときの発熱量は？……正解は、2,160キロジュール。', note: '落ち着いた高さで、数字が聞き取りやすい読み上げ向き。' },
+  { file: 'use-guide', title: 'アプリの操作ガイド', text: '設定を変えるときは、画面の右上にある、歯車のマークをタップしてください。' },
+  { file: 'use-repair', title: '家電修理の豆知識', text: '家電の調子が悪いときは、まず、電源プラグを抜いてから、確認しましょう。', note: '本業（家電修理エンジニア）の声として、いちばん説得力が出る使い道。' },
+  { file: 'use-story', title: '読み聞かせ', text: 'むかしむかし、あるところに、日曜日だけ大工さんになる、お父さんがいました。', note: '「ぱぱ」の声なので。' },
+  { file: 'use-shorts', title: 'ショート動画の煽り', text: '待って、それ、過去問に6回も出てるやつ！ 覚えるのは、2つだけ！', note: '感情のタグを付けると、ここまで上がります。' },
+];
+
+const useless: Sample[] = [
+  { file: 'useless-pudding', title: 'プリン発見速報', text: '速報です。冷蔵庫を開けたところ、昨日の自分が残しておいたプリンが、見つかりました！' },
+  { file: 'useless-socks', title: '靴下の捜索願', text: '靴下の片方が、また行方不明です。最後に目撃されたのは、洗濯機の中。情報を、お待ちしております。' },
+  { file: 'useless-microwave', title: '電子レンジのカウントダウン（ささやき）', text: '電子レンジが、まもなく鳴ります。……3、2、1。' },
+  { file: 'useless-weather', title: '局地的すぎる天気予報', text: '本日の天気は、晴れ。ただし、洗濯物を干した瞬間に限り、ところにより雨でしょう。' },
+  { file: 'useless-meeting', title: '会議のまとめ', text: '本日の会議の結論です。結論は、次の会議で決めることに、決まりました。' },
+];
+
+const lines: Sample[] = [
+  { file: 'line-ganbatta', title: 'がんばった', text: 'がんばった。……今日は、たぶん、がんばった。' },
+  { file: 'line-gohan', title: 'ごはんはおいしい', text: 'なんとか、なる。なんとか、ならなくても、ごはんは、おいしい。' },
+  { file: 'line-sunday', title: '日曜日の夜', text: '日曜日の夜に、月曜日のことを考えるのは、やめにしましょう。……と言いつつ、もう考えてる。' },
+];
+
+const profile = [
+  { label: '声の高さ', value: '約129Hz', note: '成人男性として、やや低め〜まんなか。落ち着いて聞こえる高さ' },
+  { label: '高さの幅', value: '約19半音', note: '抑揚がしっかりある。盛り上げると250Hzくらいまで上がる' },
+  { label: '話す速さ', value: '1秒に約4.4文字', note: '早口ではない、聞き取りやすい速さ' },
+];
+---
+<BaseLayout title={`声のサンプル — ${owner.name}`} description={`${owner.name}（開発者本人）の声を ElevenLabs で再現した AI ボイスのサンプル集。解説・学習・操作ガイドから、絶対に使わない無駄なサンプルまで。`}>
+  <article class="voice-page">
+    <p class="sec-label">voice</p>
+    <h1>ぱぱの声、AIになりました。</h1>
+    <p class="lead">
+      このページの声は、開発者本人（{owner.name}）の声を、AI 音声サービス <strong>ElevenLabs</strong> で再現したものです。
+      アプリの紹介動画のナレーションにも使っています。<br />
+      せっかくなので、向いている使い道から、<strong>絶対に使わない無駄なサンプル</strong>まで並べてみました。
+    </p>
+    <p class="note">※ すべて AI で作った音声です（本人の録音ではありません）。2026年11月に作成。</p>
+
+    <h2>この声の特徴（数字で見ると）</h2>
+    <p class="small">紹介動画のナレーション（約2分40秒）を分析した結果です。</p>
+    <div class="profile-grid">
+      {profile.map((p) => (
+        <div class="stat">
+          <p class="stat-label">{p.label}</p>
+          <p class="stat-value">{p.value}</p>
+          <p class="stat-note">{p.note}</p>
+        </div>
+      ))}
+    </div>
+    <p>落ち着いていて、でも盛り上げも効く声です。いちばん向いているのは、<strong>解説・学習・操作ガイド</strong>のような「ちゃんと伝えたい」場面です。</p>
+
+    <h2>向いている使い道</h2>
+    <div class="samples">
+      {uses.map((s) => (
+        <section class="sample">
+          <h3>{s.title}</h3>
+          <p class="script">「{s.text}」</p>
+          <audio controls preload="none" src={`${base}/voice/${s.file}.mp3`}></audio>
+          {s.note && <p class="small">{s.note}</p>}
+        </section>
+      ))}
+    </div>
+
+    <h2>10か国語で「頑張って！」</h2>
+    <p>英語・中国語（普通話）・ヒンディー語・スペイン語・アラビア語・フランス語・ベンガル語・ポルトガル語・ロシア語・インドネシア語。話す人の多い言語の順（目安）に、合格を祈って無駄に10回言っています。</p>
+    <audio controls preload="none" src={`${base}/voice/ganbatte-10.mp3`}></audio>
+
+    <h2>絶対に使わないサンプル</h2>
+    <p class="small">使い道：なし。でも作ってしまったので置いておきます。</p>
+    <div class="samples">
+      {useless.map((s) => (
+        <section class="sample useless">
+          <span class="badge">使い道：なし</span>
+          <h3>{s.title}</h3>
+          <p class="script">「{s.text}」</p>
+          <audio controls preload="none" src={`${base}/voice/${s.file}.mp3`}></audio>
+        </section>
+      ))}
+    </div>
+
+    <h2>ゆるい名台詞（オリジナル）</h2>
+    <p class="small">どこかで聞いたことがありそうで、ない。すべてオリジナルです。</p>
+    <div class="samples">
+      {lines.map((s) => (
+        <section class="sample">
+          <h3>{s.title}</h3>
+          <p class="script">「{s.text}」</p>
+          <audio controls preload="none" src={`${base}/voice/${s.file}.mp3`}></audio>
+        </section>
+      ))}
+    </div>
+
+    <h2>この声を使ってみたい方へ</h2>
+    <p>
+      ElevenLabs の共有リンクから、この声をあなたの ElevenLabs のアカウントに追加できます。
+      リンクを開くには、ElevenLabs へのログイン（無料のアカウント登録）が必要です。
+    </p>
+    <p><a class="btn primary" href={shareUrl} target="_blank" rel="noopener">ElevenLabs でこの声を開く</a></p>
+    <ul class="small">
+      <li>使えるプランや条件は、ElevenLabs の規約に従います。</li>
+      <li>本人になりすましたり、誤解を招いたりする使い方はご遠慮ください。</li>
+      <li>動画などで使う時は、AI で作った音声であることを書いておくのがおすすめです。</li>
+    </ul>
+    <p class="small">ご感想・使ってみた報告は、<a href={`${base}/#consult`}>相談チャット</a>からどうぞ。地味にうれしいです。</p>
+  </article>
+</BaseLayout>
+
+<style>
+  .voice-page h1 { margin-top: 4px; }
+  .voice-page h2 { margin-top: 44px; font-size: 1.25rem; }
+  .lead { font-size: 1.05rem; line-height: 1.9; }
+  .note, .small { color: var(--ink-soft); font-size: 0.88rem; }
+  .profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 14px 0; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); }
+  .stat-label { margin: 0; color: var(--ink-soft); font-size: 0.85rem; }
+  .stat-value { margin: 4px 0; font-size: 1.5rem; font-weight: 700; }
+  .stat-note { margin: 0; color: var(--ink-soft); font-size: 0.85rem; }
+  .samples { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-top: 14px; }
+  .sample { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+  .sample h3 { margin: 0 0 6px; font-size: 1.05rem; }
+  .script { margin: 0 0 10px; line-height: 1.8; }
+  .sample audio, .voice-page > audio { width: 100%; }
+  .useless { border-style: dashed; }
+  .badge { position: absolute; top: 12px; right: 12px; font-size: 0.75rem; font-weight: 700; background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: 999px; padding: 2px 10px; color: var(--ink-soft); }
+  .useless h3 { padding-right: 96px; }
+</style>
