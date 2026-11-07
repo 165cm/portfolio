@@ -30,7 +30,7 @@ export const business = {
   description: '暮らしや仕事に役立つWebアプリ（資格学習など）の企画・開発・販売',
   email: 'papazon.service.desk@outlook.jp',
   established: '2026年',
-  updated: '2026年11月3日',
+  updated: '2026年11月7日',
   periodNote: '期間の終わりにあたる日付がない月は、その月の末日23:59まで（日本時間）です。',
   replyTarget: '土日祝を除く原則2営業日以内に、最初のご返信をすることを目標としています（解決までの期限ではありません）。',
 };
